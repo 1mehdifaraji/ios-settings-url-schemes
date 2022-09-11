@@ -1,4 +1,6 @@
-# Complete list of iOS settings app url schemes  ( Latest update September 11, 2021 ) 
+# Complete list of iOS settings app url schemes 
+
+### ( Latest update September 11, 2021 ) 
 
 
 Settings
