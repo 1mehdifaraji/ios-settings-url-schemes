@@ -2,6 +2,9 @@
 
 ### ( Latest update September 11, 2022 ) 
 
+Personally recommend using `Command` + `F` on your mac or `Ctrl` + `F` on your windows to find the url scheme you need .
+
+
 
 Settings
 
