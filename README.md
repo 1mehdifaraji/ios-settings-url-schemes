@@ -1,12 +1,11 @@
-# Complete list of iOS settings app url schemes 
-
+# Complete list of iOS settings app url schemes  ( Latest update September 11, 2021 ) 
 
 
 Settings
 
-App-prefs://
+> App-prefs://
 
-App-prefs:
+> App-prefs:
 
 > prefs://
 
