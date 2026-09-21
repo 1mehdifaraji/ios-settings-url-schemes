@@ -1,2513 +1,4063 @@
-# Complete list of iOS settings app url schemes 
+iOS Settings URL Schemes 
+
+A collection of known iOS Settings URL schemes, including legacy prefs:, App-prefs:, and newer settings-navigation:// destinations.
+
+Latest update: September 21, 2026
+
+This repository preserves older URLs for historical/reference purposes and adds newer destinations observed on modern iOS versions.
+
+⸻
+
+⚠️ Important
+
+Most URLs in this repository are undocumented/private iOS implementation details.
+
+Apple does not guarantee that these URLs will continue to work across iOS releases.
+
+Their behavior can differ depending on:
+
+- iOS version
+- Settings app changes
+- whether the URL is opened from an app, Safari, or Shortcuts
+- device configuration
+- installed apps
+- region
+- whether the destination is available on the device
+
+A URL working in Shortcuts does not necessarily mean that the same URL can be used successfully from a third-party application.
+
+For App Store applications, prefer Apple’s documented APIs whenever one exists.
+
+⸻
+
+Contents
+
+- Official Apple APIs
+- URL Scheme Types
+- Settings URLs
+  - Apple Account
+  - Airplane Mode
+  - Wi-Fi
+  - Bluetooth
+  - Mobile Service
+  - Personal Hotspot
+  - VPN
+  - Notifications
+  - Sounds & Haptics
+  - Focus
+  - Screen Time
+  - General
+  - Accessibility
+  - Privacy & Security
+  - Battery
+  - Display & Brightness
+  - Wallpaper
+  - Siri
+  - Face ID & Passcode
+  - Emergency SOS
+  - Privacy
+  - App Store
+  - Wallet & Apple Pay
+  - Passwords
+  - Safari
+  - Mail
+  - Messages
+  - Phone
+  - Contacts
+  - Calendar
+  - Notes
+  - Photos
+  - Music
+  - Podcasts
+  - Maps
+  - Health
+  - Home
+  - News
+  - TV
+  - Developer
+  - Weather
+  - Freeform
+  - Journal
+- Legacy / Historical URLs
+- Known Changes
+- iOS 26+
+- iOS 27
+- Testing
+- Contributing
+- License
 
-### ( Latest update September 11, 2022 ) 
+⸻
 
-Personally recommend using `Command` + `F` on your mac or `Ctrl` + `F` on your windows to find the url scheme .
+Official Apple APIs
 
+Whenever possible, use Apple’s public APIs instead of undocumented Settings URLs.
 
+Open your application’s Settings
 
-Settings
+if let url = URL(string: UIApplication.openSettingsURLString) {
+await UIApplication.shared.open(url)
+}
 
-> App-prefs://
+This opens:
 
-> App-prefs:
+Settings → Your App
 
-> prefs://
+⸻
 
-> prefs:
+Open your application’s notification settings
 
-> prefs:root
+if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+await UIApplication.shared.open(url)
+}
 
-> prefs:root=
+⸻
 
-Settings ⇾ Accessibility
+Open Default Apps settings
 
-SKIP BELOW FOR ACCESSIBILITY SETTINGS
+> ⚠️ Deprecated: Apple currently documents `openDefaultApplicationsSettingsURLString` as deprecated.
+> Keep this reference for historical/API compatibility documentation rather than new code.
 
-Settings ⇾ Airplane Mode
+if let url = URL(string: UIApplication.openDefaultApplicationsSettingsURLString) {
+await UIApplication.shared.open(url)
+}
 
-> prefs:root=ROOT#AIRPLANE_MODE
+⸻
 
-Settings ⇾ Apple ID
+Safari Extensions
 
-> prefs:root=APPLE_ACCOUNT
+For Safari Web Extensions, use Apple’s Safari settings API when applicable instead of relying on a private URL:
 
-------------------------
+SFSafariSettings.openExtensionsSettings(
+forIdentifiers: ["com.example.extension"]
+)
 
-Subscriptions (open menu)
+⸻
 
-> prefs:root=APPLE_ACCOUNT&path=SUBSCRIPTIONS
+Call Blocking & Identification
 
-Family Sharing (open menu)
+Call Directory extensions can use Apple’s API:
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY
+try await CXCallDirectoryManager.sharedInstance.openSettings()
 
-Family Sharing ⇾ Apple Cash (highlight menu item)
+⸻
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#APPLE_CASH
+URL Scheme Types
 
-Family Sharing ⇾ Apple Subscriptions (highlight menu item)
+There are several URL formats that have been observed across iOS releases.
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#APPLE_SUBSCRIPTIONS
+prefs:
 
-Family Sharing ⇾ App Store Subscriptions (highlight menu item)
+Example:
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#APP_STORE_SUBSCRIPTIONS
+prefs:root=WIFI
 
-Family Sharing ⇾ Ask to Buy (highlight menu item)
+This is an undocumented/private scheme.
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#ASK_TO_BUY
+⸻
 
-Family Sharing ⇾ iCloud Storage / iCloud+ (highlight menu item)
+App-prefs:
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#ICLOUD_STORAGE
+Example:
 
-Family Sharing ⇾ Purchase Sharing (highlight menu item)
+App-prefs:root=WIFI
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#PURCHASE_SHARING
+This is also undocumented/private.
 
-Family Sharing ⇾ Screen Time (highlight menu item)
+Some older iOS versions and workflows used App-prefs: interchangeably with prefs:.
 
-> prefs:root=APPLE_ACCOUNT&path=FAMILY#SCREEN_TIME
+⸻
 
-Settings ⇾ Apple Pencil (iPad only)
+settings-navigation://
 
-> prefs:root=Pencil
+Example:
 
------------------
+settings-navigation://com.apple.Settings.PrivacyAndSecurity
 
-Only Draw with Apple Pencil (jump to toggle)
+This scheme is used by newer versions of Settings, including iOS 26-era Settings navigation.
 
-> prefs:root=Pencil#PrefersPencilDraws
+It is not a public Apple API.
 
-Scribble (jump to toggle)
+⸻
 
-> prefs:root=Pencil#PencilTextInput
+Settings URLs
 
-Settings ⇾ App Store
+Apple Account
 
-> prefs:root=STORE
+Apple Account
 
-----------------
+prefs:root=APPLE_ACCOUNT
+App-prefs:root=APPLE_ACCOUNT
 
-App Downloads (open menu)
+Password & Security
 
-> prefs:root=STORE&path=App%20Downloads
+prefs:root=APPLE_ACCOUNT&path=PASSWORD_AND_SECURITY
+settings-navigation://com.apple.Settings.AppleAccount/PASSWORD_AND_SECURITY
 
-Video Autoplay (open menu)
+Payment & Shipping
 
-> prefs:root=STORE&path=Video%20Autoplay
+prefs:root=APPLE_ACCOUNT&path=PAYMENT_AND_SHIPPING
+settings-navigation://com.apple.Settings.AppleAccount/PAYMENT_AND_SHIPPING
 
-Settings ⇾ Battery
+Subscriptions
 
-> prefs:root=BATTERY_USAGE
+prefs:root=APPLE_ACCOUNT&path=SUBSCRIPTIONS
+settings-navigation://com.apple.Settings.AppleAccount/SUBSCRIPTIONS
 
-------------------------
+iCloud
 
-Battery ⇾ Battery Health — iPhone-only
+prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE
 
-> prefs:root=BATTERY_USAGE&path=BATTERY_HEALTH
+iCloud Storage
 
-Settings ⇾ Bluetooth
+prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/STORAGE_AND_BACKUP
 
-> prefs:root=Bluetooth
+Name, Phone Numbers, Email
 
-Settings ⇾ Books
+prefs:root=APPLE_ACCOUNT&path=APPLE_ACCOUNT_CONTACT
 
-> prefs:root=IBOOKS
+Share My Location
 
-Settings ⇾ Calendar
+prefs:root=APPLE_ACCOUNT&path=LOCATION_SHARING
 
-> prefs:root=CALENDAR
+Family
 
--------------------
+prefs:root=APPLE_ACCOUNT&path=Family
 
-Calendar ⇾ Alternate Calendars
+⸻
 
-> prefs:root=CALENDAR&path=Alternate%20Calendars
+Airplane Mode
 
-Calendar ⇾ Default Alert Times
+prefs:root=AIRPLANE_MODE
+App-prefs:root=AIRPLANE_MODE
 
-> prefs:root=CALENDAR&path=Default%20Alert%20Times
+⸻
 
-Calendar ⇾ Default Calendar
+Wi-Fi
 
-> prefs:root=CALENDAR&path=Default%20Calendar
+prefs:root=WIFI
+App-prefs:root=WIFI
 
-Calendar ⇾ Sync
+⚠️ iOS 26+
 
-> prefs:root=CALENDAR&path=Sync
+Direct programmatic navigation to Wi-Fi settings has become unreliable in newer iOS versions.
 
-Settings ⇾ Camera
+Keep this URL for historical/reference purposes.
 
-> prefs:root=CAMERA
+⸻
 
------------------
+Bluetooth
 
-Camera ⇾ Composition | Grid (jump to toggle)
+prefs:root=Bluetooth
+App-prefs:root=Bluetooth
 
-> prefs:root=CAMERA#CameraGridSwitch
+⸻
 
-Camera ⇾ Formats (open menu)
+Mobile Service
 
-> prefs:root=CAMERA&path=CameraFormatsSettingsList
+prefs:root=MOBILE_DATA_SETTINGS_ID
+App-prefs:root=MOBILE_DATA_SETTINGS_ID
 
-Camera ⇾ Preserve Settings (open menu)
+Mobile Data
 
-> prefs:root=CAMERA&path=CameraPreserveSettingsSwitch
+prefs:root=MOBILE_DATA_SETTINGS_ID
 
-Camera ⇾ Preserve Settings ⇾ Camera Mode (jump to toggle)
+Personal Hotspot
 
-> prefs:root=CAMERA&path=CameraPreserveSettingsSwitch#CAMUserPreferencePreserveCaptureMode
+prefs:root=INTERNET_TETHERING
+App-prefs:root=INTERNET_TETHERING
 
-Camera ⇾ Record Slo-mo (open menu)
+⚠️ Some direct Personal Hotspot navigation paths have changed in newer iOS versions.
 
-> prefs:root=CAMERA&path=Record%20Slo-mo
+⸻
 
-Camera ⇾ Record Video (open menu)
+VPN
 
-> prefs:root=CAMERA&path=Record%20Video
+prefs:root=General&path=VPN
+App-prefs:root=General&path=VPN
 
-Camera ⇾ Scan QR Codes (jump to toggle)
+⸻
 
-> prefs:root=CAMERA#CameraQRBannerSwitch
+Notifications
 
-Settings ⇾ Cellular
+prefs:root=NOTIFICATIONS_ID
+App-prefs:root=NOTIFICATIONS_ID
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID
+Scheduled Summary
 
-----------------------------------
+prefs:root=NOTIFICATIONS_ID&path=SCHEDULED_SUMMARY
 
-With 1 active SIM:
+Notification Style
 
-Cellular ⇾ Cellular Data Options (open menu)
+prefs:root=NOTIFICATIONS_ID&path=NOTIFICATION_STYLE
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID&path=CELLULAR_DATA_OPTIONS
+⸻
 
-Cellular ⇾ Low Data Mode (jump to toggle)
+Sounds & Haptics
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID&path=CELLULAR_DATA_OPTIONS#Low%20Data%20Mode
+prefs:root=Sounds
+App-prefs:root=Sounds
 
-Cellular ⇾ App Data Usage (jump to section)
+Ringtone
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID#APP_DATA_USAGE
+prefs:root=Sounds&path=Ringtone
 
-With 2 active SIMs:
+Text Tone
 
-Cellular ⇾ Cellular Data (open menu)
+prefs:root=Sounds&path=TextTone
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID&path=MOBILE_DATA_SETTINGS
+⸻
 
-Cellular ⇾ App Data Usage (jump to section)
+Focus
 
-> prefs:root=MOBILE_DATA_SETTINGS_ID#APP_DATA_USAGE
+prefs:root=DO_NOT_DISTURB
+App-prefs:root=DO_NOT_DISTURB
 
-Settings ⇾ Compass
+⸻
 
-> prefs:root=COMPASS
+Screen Time
 
-Settings ⇾ Contacts
+prefs:root=SCREEN_TIME
+App-prefs:root=SCREEN_TIME
 
-> prefs:root=CONTACTS
+⸻
 
-Settings ⇾ Control Center
+General
 
-> prefs:root=ControlCenter
+prefs:root=General
+App-prefs:root=General
 
-------------------------
+About
 
-Control Center ⇾ Customize Controls
+prefs:root=General&path=About
 
-> prefs:root=ControlCenter&path=CUSTOMIZE_CONTROLS
+Software Update
 
-Settings ⇾ Display
+prefs:root=General&path=SOFTWARE_UPDATE_LINK
 
-> prefs:root=DISPLAY
+iPhone Storage
 
-------------------
+prefs:root=General&path=STORAGE_MGMT
 
-Display ⇾ Auto Lock
+Storage Management
 
-> prefs:root=DISPLAY&path=AUTOLOCK
+prefs:root=General&path=STORAGE_MGMT
 
-Display ⇾ Text Size
+Offload Unused Apps
 
-> prefs:root=DISPLAY&path=TEXT_SIZE
+prefs:root=General&path=STORAGE_MGMT#OFFLOAD
 
-Settings ⇾ Do Not Disturb
+AutoFill & Passwords
 
-> prefs:root=DO_NOT_DISTURB
+prefs:root=General&path=AUTOFILL
 
--------------------------
+AutoFill Passwords
 
-Do Not Disturb ⇾ Allow Calls From
+prefs:root=General&path=AUTOFILL#AUTOFILL
 
-> prefs:root=DO_NOT_DISTURB&path=Allow%20Calls%20From
+Verification Codes
 
-Settings ⇾ Emergency SOS
+prefs:root=General&path=AUTOFILL#SET_UP_VERIFICATION_CODES
 
-> prefs:root=EMERGENCY_SOS
+Clean Up Verification Codes
 
-------------------------
+prefs:root=General&path=AUTOFILL#CLEAN_UP_VERIFICATION_CODES
 
-Emergency SOS ⇾ Animation Demo (jump to section)
+VPN & Device Management
 
-> prefs:root=EMERGENCY_SOS#TRIGGER_ANIMATION_GROUP
+prefs:root=General&path=ManagedConfigurationList
 
-Emergency SOS ⇾ Animation Demo (highlight animation)
+Dictionary
 
-> prefs:root=EMERGENCY_SOS#TRIGGER_ANIMATION
+prefs:root=General&path=DICTIONARY
 
-Emergency SOS ⇾ Call with Hold (jump to section)
+Language & Region
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_HOLD_GROUP
+prefs:root=General&path=INTERNATIONAL
 
-Emergency SOS ⇾ Call with Hold (jump to toggle)
+Region
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_HOLD
+prefs:root=General&path=INTERNATIONAL/LOCALE
 
-Emergency SOS ⇾ Call with Side Button (jump to section)
+Calendar
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_SIDE_BUTTON_GROUP
+prefs:root=General&path=INTERNATIONAL/CALENDAR
 
-Emergency SOS ⇾ Call with Side Button (jump to toggle)
+Numbering System
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_SIDE_BUTTON
+prefs:root=General&path=INTERNATIONAL/NUMBERING_SYSTEM
 
-Emergency SOS ⇾ Call with 5 Presses (jump to section)
+Temperature Unit
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_PRESSES_GROUP
+prefs:root=General&path=INTERNATIONAL/TEMPERATURE_UNIT
 
-Emergency SOS ⇾ Call with 5 Presses (jump to toggle)
+Preferred Language
 
-> prefs:root=EMERGENCY_SOS#CALL_WITH_PRESSES
+prefs:root=General&path=INTERNATIONAL#PREFERRED_LANGUAGE_GROUP
 
-Emergency SOS ⇾ Emergency Contacts (jump to section)
+Add Language
 
-> prefs:root=EMERGENCY_SOS#EMERGENCY_CONTACTS
+prefs:root=General&path=INTERNATIONAL#ADD_PREFERRED_LANGUAGE
 
-Emergency SOS ⇾ Set up Emergency Contacts in Health (highlight menu item)
+AirDrop
 
-> prefs:root=EMERGENCY_SOS#OPEN_HEALTH
+prefs:root=General&path=AIRDROP_LINK
 
-Emergency SOS ⇾ Countdown Sound (jump to toggle)
+Bringing Devices Together
 
-> prefs:root=EMERGENCY_SOS#ALARM_SOUND_GROUP
+prefs:root=General&path=AIRDROP_LINK#AIRDROP_NFC_ID
 
-Emergency SOS ⇾ Countdown Sound (jump to toggle)
+AirPlay & Continuity
 
-> prefs:root=EMERGENCY_SOS#ALARM_SOUND_SWITCH
+prefs:root=General&path=CONTINUITY_SPEC
 
-Settings ⇾ Exposure Notifications
+Handoff
 
-> prefs:root=EXPOSURE_NOTIFICATION
+prefs:root=General&path=CONTINUITY_SPEC#CONTINUITY
 
-Settings ⇾ Face ID
+Transfer to HomePod
 
-> prefs:root=PASSCODE
+prefs:root=General&path=CONTINUITY_SPEC#TRANSFER_TO_HOMEPOD
 
-Settings ⇾ FaceTime
+Automatically AirPlay
 
-> prefs:root=FACETIME
+prefs:root=General&path=CONTINUITY_SPEC#AUTOMATICALLY_AIRPLAY
 
-Settings ⇾ Game Center
+Continuity Camera
 
-> prefs:root=GAMECENTER
+prefs:root=General&path=CONTINUITY_SPEC#WOMBAT_CAMERA
 
-Settings ⇾ General
+CarPlay
 
-> prefs:root=General
+prefs:root=General&path=CARPLAY
 
-------------------
+Date & Time
 
-General ⇾ About
+prefs:root=General&path=DATE_AND_TIME
 
-> prefs:root=General&path=About
+Keyboard
 
-General ⇾ About ⇾ Certificate Trust Settings
+prefs:root=General&path=Keyboard
 
-> prefs:root=General&path=About/CERT_TRUST_SETTINGS
+Fonts
 
-General ⇾ AirDrop
+prefs:root=General&path=Fonts
 
-> prefs:root=General&path=AIRDROP_LINK
+Legal & Regulatory
 
-General ⇾ AirPlay & Handoff
+prefs:root=General&path=LEGAL_AND_REGULATORY
 
-> prefs:root=General&path=CONTINUITY_SPEC
+AppleCare & Warranty
 
-General ⇾ AirPlay & Handoff ⇾ Handoff
+prefs:root=General&path=COVERAGE/
 
-> prefs:root=General&path=CONTINUITY_SPEC#CONTINUITY
+⸻
 
-General ⇾ AirPlay & Handoff ⇾ Automatically AirPlay to TVs
+Accessibility
 
-> prefs:root=General&path=CONTINUITY_SPEC#AIRPLAY_TO_TV
+prefs:root=ACCESSIBILITY
+App-prefs:root=ACCESSIBILITY
 
-General ⇾ AirPlay & Handoff ⇾ Transfer to HomePod
+VoiceOver
 
-> prefs:root=General&path=CONTINUITY_SPEC#TRANSFER_TO_HOMEPOD
+prefs:root=ACCESSIBILITY&path=VOICEOVER
 
-General ⇾ Background App Refresh
+Zoom
 
-> prefs:root=General&path=AUTO_CONTENT_DOWNLOAD
+prefs:root=ACCESSIBILITY&path=ZOOM
 
-General ⇾ CarPlay
+Display & Text Size
 
-> prefs:root=General&path=CARPLAY
+prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT
 
-General ⇾ Date & Time
+Motion
 
-> prefs:root=General&path=DATE_AND_TIME
+prefs:root=ACCESSIBILITY&path=MOTION
 
-General ⇾ Dictionary
+Spoken Content
 
-> prefs:root=General&path=DICTIONARY
+prefs:root=ACCESSIBILITY&path=SPEECH
 
-General ⇾ Home Button
+Touch
 
-> prefs:root=General&path=HOME_BUTTON
+prefs:root=ACCESSIBILITY&path=TOUCH
 
-General ⇾ iPhone Storage
+Face ID & Attention
 
-> prefs:root=General&path=STORAGE_MGMT#MANAGE
+prefs:root=ACCESSIBILITY&path=FACE_ID
 
-General ⇾ iPhone Storage ⇾ Offload Unused Apps
+Switch Control
 
-> prefs:root=General&path=STORAGE_MGMT#OFFLOAD
+prefs:root=ACCESSIBILITY&path=SwitchControl
 
-General ⇾ Keyboard
+AssistiveTouch
 
-> prefs:root=General&path=Keyboard
+prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY
 
-General ⇾ Keyboard ⇾ Keyboards
+Guided Access
 
-> prefs:root=General&path=Keyboard/KEYBOARDS
+prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS
 
-General ⇾ Keyboard ⇾ One Handed Keyboard
+⸻
 
-> prefs:root=General&path=Keyboard/ReachableKeyboard
+Privacy & Security
 
-General ⇾ Keyboard ⇾ Text Replacement
+Main page
 
-> prefs:root=General&path=Keyboard/USER_DICTIONARY
+Legacy:
 
-General ⇾ Language & Region
+prefs:root=Privacy
 
-> prefs:root=General&path=INTERNATIONAL
+Modern navigation:
 
-General ⇾ Legal & Regulatory
+settings-navigation://com.apple.Settings.PrivacyAndSecurity
 
-> prefs:root=General&path=LEGAL_AND_REGULATORY
+Location Services
 
-General ⇾ Multitasking — iPad-only
+prefs:root=Privacy&path=LOCATION
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCATION
 
-> prefs:root=General&path=MULTITASKING
+Location Sharing
 
-General ⇾ Multitasking — iPad-only
+prefs:root=Privacy&path=LOCATION/LOCATION_SHARING
 
-> prefs:root=General#Multitasking_Gesture_Switch
+Contacts
 
-General ⇾ Picture in Picture
+prefs:root=Privacy&path=CONTACTS
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/CONTACTS
 
-> prefs:root=General&path=PiP_SPEC
+Calendars
 
-General ⇾ Profiles
+prefs:root=Privacy&path=CALENDARS
 
-> prefs:root=General&path=ManagedConfigurationList
+Photos
 
-General ⇾ Regulatory
+prefs:root=Privacy&path=PHOTOS
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/PHOTOS
 
-> prefs:root=General&path=REGULATORY
+Camera
 
-General ⇾ Reset — iOS 14 and older
+prefs:root=Privacy&path=CAMERA
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/CAMERA
 
-> prefs:root=General&path=Reset
+Microphone
 
-General ⇾ Reset ⇾ Reset All Settings (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=MICROPHONE
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/MICROPHONE
 
-> prefs:root=General&path=Reset#settingsErase
+Bluetooth
 
-General ⇾ Reset ⇾ Erase All Content and Settings (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=BT_PERIPHERAL
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/BT_PERIPHERAL
 
-> prefs:root=General&path=Reset#fullErase
+Speech Recognition
 
-General ⇾ Reset ⇾ Reset Network Settings (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=SPEECH_RECOGNITION
 
-> prefs:root=General&path=Reset#RESET_NETWORK_LABEL
+Health
 
-General ⇾ Reset ⇾ Reset All Cellular Plans — iOS 14 and older
+prefs:root=Privacy&path=HEALTH
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/HEALTH
 
-> prefs:root=General&path=Reset#cellularErase
+Health Data
 
-General ⇾ Reset ⇾ Subscriber Services — iOS 14 and older
+prefs:root=Privacy&path=HEALTH_DATA
 
-> prefs:root=General&path=Reset#SUBSCRIBER_SERVICES_ID
+HomeKit
 
-General ⇾ Reset ⇾ Reset Keyboard Dictionary (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=WILLOW
 
-> prefs:root=General&path=Reset#RESET_KEYBOARD_DICTIONARY_LABEL
+Media & Apple Music
 
-General ⇾ Reset ⇾ Reset Home Screen Layout (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=MEDIALIBRARY
 
-> prefs:root=General&path=Reset#RESET_ICONS_LABEL
+Files & Folders
 
-General ⇾ Reset ⇾ Reset Location & Privacy (highlight menu item) — iOS 14 and older
+prefs:root=Privacy&path=FILEACCESS
 
-> prefs:root=General&path=Reset#RESET_PRIVACY_LABEL
+Tracking
 
-General ⇾ Shut Down
+prefs:root=Privacy&path=USER_TRACKING
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/USER_TRACKING
 
-> prefs:root=General#SHUTDOWN_LABEL
+Advertising
 
-General ⇾ Software Update
+prefs:root=Privacy&path=ADVERTISING
 
-> prefs:root=General&path=SOFTWARE_UPDATE_LINK
+Analytics & Improvements
 
-General ⇾ Trackpad & Mouse — iPad-only
+prefs:root=Privacy&path=PROBLEM_REPORTING
 
-> prefs:root=General&path=POINTERS
+App Privacy Report
 
-General ⇾ Transfer or Rest iPhone (opens menu) — iOS 15 and newer
+prefs:root=Privacy&path=PRIVACY_REPORT
 
-> prefs:root=General&path=Reset
+Lockdown Mode
 
-General ⇾ Transfer or Rest iPhone ⇾ Get Started (opens tool) — iOS 15 and newer
+prefs:root=Privacy#LOCKDOWN_MODE
+settings-navigation://com.apple.Settings.PrivacyAndSecurity#LOCKDOWN_MODE
 
-> prefs-prebuddy://
+Sensitive Content Warning
 
-General ⇾ TV Out
+prefs:root=Privacy#NUDITY_DETECTION
 
-> prefs:root=General&path=TV_OUT
+⸻
 
-General ⇾ Use Side Switch To
+Battery
 
-> prefs:root=General#Rotation_Switch_Action_Group
+prefs:root=BATTERY_USAGE
+App-prefs:root=BATTERY_USAGE
 
-General ⇾ VPN
+⸻
 
-> prefs:root=General&path=VPN
+Display & Brightness
 
-General (Unknown Path)
+prefs:root=DISPLAY
+App-prefs:root=DISPLAY
 
-> prefs:root=General&path=NFC_LINK
+Auto-Lock
 
-Settings ⇾ Health
+prefs:root=DISPLAY&path=AUTOLOCK
 
-> prefs:root=HEALTH
+Text Size
 
-Settings ⇾ iCloud
+prefs:root=DISPLAY&path=TEXT_SIZE
 
-> prefs:root=CASTLE
+Display Zoom
 
------------------
+prefs:root=DISPLAY&path=ZOOM
 
-iCloud Backup
+Dark Mode
 
-> prefs:root=CASTLE&path=BACKUP
+prefs:root=DISPLAY#LockAppearance
 
-Settings ⇾ Mail
+True Tone
 
-> prefs:root=MAIL
+prefs:root=DISPLAY#TrueTone
 
-> prefs:root=ACCOUNT_SETTINGS — iOS 14 and later only
+Night Shift
 
-----------------------------------------------------
+prefs:root=DISPLAY&path=BLUE_LIGHT_REDUCTION
 
-Mail ⇾ Blocked
+⸻
 
-> prefs:root=MAIL&path=Blocked
+Wallpaper
 
-Mail ⇾ Blocked Sender Options
+prefs:root=Wallpaper
 
-> prefs:root=MAIL&path=Blocked%20Sender%20Options
+⚠️ iOS 18.1+
 
-Mail ⇾ Default Account
+This destination has been reported to no longer navigate directly to
+Wallpaper settings from some contexts.
 
-> prefs:root=MAIL&path=Default%20Account
+Keep this URL for historical/reference purposes.
 
-Mail ⇾ Include Attachments with Replies
+⸻
 
-> prefs:root=MAIL&path=Include%20Attachments%20with%20Replies
+Siri
 
-Mail ⇾ Increase Quote Level
+prefs:root=SIRI
+App-prefs:root=SIRI
 
-> prefs:root=MAIL&path=Increase%20Quote%20Level
+⸻
 
-Mail ⇾ Mark Addresses
+Face ID & Passcode
 
-> prefs:root=MAIL&path=Mark%20Addresses
+prefs:root=PASSCODE
+App-prefs:root=PASSCODE
 
-Mail ⇾ Muted Thread Action
+⸻
 
-> prefs:root=MAIL&path=Muted%20Thread%20Action
+Emergency SOS
 
-Mail ⇾ Notifications
+prefs:root=EmergencySOS
+App-prefs:root=EmergencySOS
 
-> prefs:root=MAIL&path=NOTIFICATIONS
+⸻
 
-Mail ⇾ Preview
+App Store
 
-> prefs:root=MAIL&path=Preview
+prefs:root=STORE
+App-prefs:root=STORE
 
-Mail ⇾ Signature
+⸻
 
-> prefs:root=MAIL&path=Signature
+Wallet & Apple Pay
 
-Mail ⇾ Swipe Options
+prefs:root=PASSBOOK
+App-prefs:root=PASSBOOK
 
-> prefs:root=MAIL&path=Swipe%20Options
+Apple Cash
 
-Settings ⇾ Maps
+prefs:root=PASSBOOK#Apple%C2%A0Cash
 
-> prefs:root=MAPS
+Payment Cards
 
----------------
+prefs:root=PASSBOOK#SETTINGS_PAYMENT_CARDS_GROUP
 
-Maps ⇾ Climate | Air Quality Index (jump to toggle)
+Add Card
 
-> prefs:root=MAPS#Air%20Quality%20Index
+prefs:root=PASSBOOK#Add%20Card
 
-Maps ⇾ Climate | Weather Conditions (jump to toggle)
+Double-Click Side Button
 
-> prefs:root=MAPS#Weather%20Conditions
+prefs:root=PASSBOOK#Double-Click%20Side%20Button
 
-Maps ⇾ Distances (jump to section)
+Order Tracking
 
-> prefs:root=MAPS#Distances
+prefs:root=PASSBOOK#ORDER_TRACKING
 
-Maps ⇾ Driving & Navigation (open menu) *
+⸻
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation
+Passwords
 
-Maps ⇾ Driving & Navigation ⇾ Avoid (jump to section) *
+Modern iOS has a dedicated Passwords destination.
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Avoid
+prefs:root=PASSWORDS
+App-prefs:root=PASSWORDS
 
-Maps ⇾ Driving & Navigation ⇾ Navigation Voice Volume (jump to section) *
+ℹ️ This replaces the role previously served by the older
+Accounts & Passwords settings area.
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Navigation%20Voice%20Volume
+⸻
 
-Maps ⇾ Driving & Navigation ⇾ Pause Spoken Audio (jump to toggle) *
+Safari
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Pause%20Spoken%20Audio
+prefs:root=SAFARI
+App-prefs:root=SAFARI
 
-Maps ⇾ Driving & Navigation ⇾ Show in Navigation (jump to section) *
+Extensions
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Show%20in%20Navigation
+prefs:root=SAFARI&path=WEB_EXTENSIONS
 
-Maps ⇾ Driving & Navigation ⇾ Show in Navigation | Compass (jump to toggle) *
+Modern Settings navigation:
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Compass
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari/WEB_EXTENSIONS
 
-Maps ⇾ Driving & Navigation ⇾ Show in Navigation | Speed Limit (jump to toggle) *
+For Safari Web Extensions, prefer Apple’s SFSafariSettings API when possible.
 
-> prefs:root=MAPS&path=Driving%20&%20Navigation#Speed%20Limit
+⸻
 
-Maps ⇾ Map Labels | Always in English (jump to toggle)
+Mail
 
-> prefs:root=MAPS#Always%20in%20English
+prefs:root=MAIL
 
-Maps ⇾ Preferred Transportation Type (jump to section)
+Accounts
 
-> prefs:root=MAPS#Preferred%20Transportation%20Type
+prefs:root=MAIL&path=ACCOUNTS
 
-Maps ⇾ Preferred Type of Travel (jump to section)
+Add Account
 
-> prefs:root=MAPS#Preferred%20Transportation%20Type
+prefs:root=MAIL&path=ACCOUNTS#ADD_ACCOUNT
 
-Maps ⇾ Transit (open menu)
+Fetch New Data
 
-> prefs:root=MAPS&path=Transit
+prefs:root=MAIL&path=ACCOUNTS#FETCH_NEW_DATA
 
-Maps ⇾ Walking (open menu)
+⸻
 
-> prefs:root=MAPS&path=Walking
+Messages
 
-Maps ⇾ Walking ⇾ Optical Heading (jump to toggle)
+prefs:root=MESSAGES
+App-prefs:root=MESSAGES
 
-> prefs:root=MAPS&path=Walking#Optical%20Heading
+⸻
 
-Maps ⇾ Your Car | Show Parked Location (jump to toggle)
+Phone
 
-> prefs:root=MAPS#Show%20Parked%20Location
+prefs:root=Phone
+App-prefs:root=Phone
 
-* Not working in at least iOS 13 and later
+⸻
 
-Settings ⇾ Measure
+Contacts
 
-> prefs:root=MEASURE
+prefs:root=CONTACTS
+App-prefs:root=CONTACTS
 
-Settings ⇾ Messages
+⸻
 
-> prefs:root=MESSAGES
+Calendar
 
-Settings ⇾ Music
+prefs:root=CALENDAR
+App-prefs:root=CALENDAR
 
-> prefs:root=MUSIC
+⸻
 
-----------------
+Notes
 
-Music ⇾ Cellular Data
+Notes
 
-> prefs:root=MUSIC&path=com.apple.Music:CellularData
+prefs:root=NOTES
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes
 
-Music ⇾ EQ
+Default Account
 
-> prefs:root=MUSIC&path=com.apple.Music:EQ
+prefs:root=NOTES&path=Default%20Account
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Default%20Account
 
-Music ⇾ Optimize Storage
+Password
 
-> prefs:root=MUSIC&path=com.apple.Music:OptimizeStorage
+prefs:root=NOTES&path=Password
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Password
 
-Music ⇾ Volume Limit
+Sort Notes By
 
-> prefs:root=MUSIC&path=com.apple.Music:VolumeLimit
+prefs:root=NOTES&path=Sort%20Notes%20By
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Sort%20Notes%20By
 
-Settings ⇾ News
+New Notes Start With
 
-> prefs:root=NEWS
+prefs:root=NOTES&path=New%20Notes%20Start%20With
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/New%20Notes%20Start%20With
 
-Settings ⇾ Notes
+Sort Checked Items
 
-> prefs:root=NOTES
+prefs:root=NOTES&path=Sort%20Checked%20Items
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Sort%20Checked%20Items
 
-----------------
+Lines & Grids
 
-Notes ⇾ Access Notes from Lock Screen
+prefs:root=NOTES&path=Lines%20%26%20Grids
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Lines%20%26%20Grids
 
-> prefs:root=NOTES&path=Access%20Notes%20from%20Lock%20Screen
+Save to Photos
 
-Notes ⇾ Default Account
+prefs:root=NOTES#Save%20to%20Photos
 
-> prefs:root=NOTES&path=Default%20Account
+⸻
 
-Notes ⇾ Lines & Grids
+Photos
 
-> prefs:root=NOTES&path=Lines%20%26%20Grids
+prefs:root=Photos
+App-prefs:root=Photos
 
-Notes ⇾ New Notes Start With
+Transfer to Mac or PC
 
-> prefs:root=NOTES&path=New%20Notes%20Start%20With
+prefs:root=Photos#TransferGroup
 
-Notes ⇾ Password
+⸻
 
-> prefs:root=NOTES&path=Password
+Music
 
-Notes ⇾ Sort Checked Items
+prefs:root=MUSIC
+App-prefs:root=MUSIC
 
-> prefs:root=NOTES&path=Sort%20Checked%20Items
+EQ
 
-Notes ⇾ Sort Notes By
+prefs:root=MUSIC&path=com.apple.Music%3AEQ
 
-> prefs:root=NOTES&path=Sort%20Notes%20By
+Sound Check
 
-Settings ⇾ Notifications
+prefs:root=MUSIC#com.apple.Music%3ASoundCheck
 
-> prefs:root=NOTIFICATIONS_ID
+Use Listening History
 
----------------------------
+prefs:root=MUSIC#com.apple.Music%3APrivateListening
 
-Notifications ⇾ Siri Suggestions
+⸻
 
-> prefs:root=NOTIFICATIONS_ID&path=Siri%20Suggestions
+Podcasts
 
-Settings ⇾ Passwords & Accounts
+prefs:root=PODCASTS
+App-prefs:root=PODCASTS
 
-> prefs:root=ACCOUNTS_AND_PASSWORDS
+⸻
 
----------------------------------
+Maps
 
-Passwords & Accounts ⇾ Fetch New Data
+prefs:root=MAPS
+App-prefs:root=MAPS
 
-> prefs:root=ACCOUNTS_AND_PASSWORDS&path=FETCH_NEW_DATA
+⸻
 
-Passwords & Accounts ⇾ Add Account
+Health
 
-> prefs:root=ACCOUNTS_AND_PASSWORDS&path=ADD_ACCOUNT
+prefs:root=HEALTH
+App-prefs:root=HEALTH
 
-Settings ⇾ Personal Hotspot
+⸻
 
-> prefs:root=INTERNET_TETHERING
+Home
 
------------------------------
+prefs:root=HOME
+App-prefs:root=HOME
 
-Personal Hotspot ⇾ Family Sharing
+⸻
 
-> prefs:root=INTERNET_TETHERING&path=Family%20Sharing
+News
 
-Personal Hotspot ⇾ Wi-Fi Password
+prefs:root=NEWS
+App-prefs:root=NEWS
 
-> prefs:root=INTERNET_TETHERING&path=Wi-Fi%20Password
+⸻
 
-Settings ⇾ Phone
+TV
 
-> prefs:root=Phone
+prefs:root=TV
+App-prefs:root=TV
 
-Settings ⇾ Photos
+⸻
 
-> prefs:root=Photos
+Weather
 
-Settings ⇾ Privacy
+prefs:root=WEATHER
+App-prefs:root=WEATHER
 
-> prefs:root=Privacy
+⸻
 
-------------------
+Freeform
 
-Privacy ⇾ Contacts
+prefs:root=FREEFORM
+App-prefs:root=FREEFORM
 
-> prefs:root=Privacy&path=CONTACTS
+⸻
 
-Privacy ⇾ Calendars
+Journal
 
-> prefs:root=Privacy&path=CALENDARS
+prefs:root=JOURNAL
+App-prefs:root=JOURNAL
 
-Privacy ⇾ Camera
+⸻
 
-> prefs:root=Privacy&path=CAMERA
+Developer
 
-Privacy ⇾ Location Services
+The Developer section is normally available after enabling Developer Mode.
 
-> prefs:root=Privacy&path=LOCATION
+prefs:root=DEVELOPER_SETTINGS
+App-prefs:root=DEVELOPER_SETTINGS
 
-Privacy ⇾ Microphone
+Multipath Networking
 
-> prefs:root=Privacy&path=MICROPHONE
+prefs:root=DEVELOPER_SETTINGS&path=MULTI_PATH_AGG
 
-Privacy ⇾ Motion
+Network Link Conditioner
 
-> prefs:root=Privacy&path=MOTION
+prefs:root=DEVELOPER_SETTINGS&path=NLC
 
-Privacy ⇾ Photos
+Logging
 
-> prefs:root=Privacy&path=PHOTOS
+prefs:root=DEVELOPER_SETTINGS&path=DTInstrumentsSettings
 
-Privacy ⇾ Reminders
+Playable Content API
 
-> prefs:root=Privacy&path=REMINDERS
+prefs:root=DEVELOPER_SETTINGS&path=RoutineSettings
 
-Privacy ⇾ Speech Recognition
+TV Provider
 
-> prefs:root=Privacy&path=SPEECH_RECOGNITION
+prefs:root=DEVELOPER_SETTINGS&path=VideoSubscriberAccountSettings
 
-Settings ⇾ Reminders
+ClassKit API
 
-> prefs:root=REMINDERS
+prefs:root=DEVELOPER_SETTINGS&path=ClassKitSettings
 
---------------------
+CoreSpotlight Testing
 
-Reminders ⇾ Default List
+prefs:root=DEVELOPER_SETTINGS#CORESPOTLIGHT_TESTING
 
-> prefs:root=REMINDERS&path=DEFAULT_LIST
+Shortcuts Testing
 
-Settings ⇾ Ringtone
+prefs:root=DEVELOPER_SETTINGS#SIRI_ACTIONS_TESTING
 
-> prefs:root=Sounds&path=Ringtone
+MIDI-CI Testing
 
-Settings ⇾ Safari
+prefs:root=DEVELOPER_SETTINGS#MIDI_CI_API_BETA
 
-> prefs:root=SAFARI
+Hang Detection
 
------------------
+prefs:root=DEVELOPER_SETTINGS#HANGTRACER_EXTERNAL_CONFIGURE
 
-Safari ⇾ Camera
+⸻
 
-> prefs:root=SAFARI&path=Camera
+Legacy / Historical URLs
 
-Safari ⇾ Close Tabs
+This repository intentionally keeps older URLs because they can still be useful for:
 
-> prefs:root=SAFARI&path=Close%20Tabs
+- older iOS versions
+- research
+- reverse engineering
+- Shortcuts
+- automation
+- historical applications
+- compatibility testing
 
-Safari ⇾ Content Blockers
+Passwords & Accounts
 
-> prefs:root=SAFARI&path=Content%20Blockers
+Older iOS:
 
-Safari ⇾ Downloads
+prefs:root=ACCOUNTS_AND_PASSWORDS
+App-prefs:root=ACCOUNTS_AND_PASSWORDS
 
-> prefs:root=SAFARI&path=DOWNLOADS
+Modern iOS uses the dedicated PASSWORDS destination instead.
 
-Safari ⇾ Location
+⸻
 
-> prefs:root=SAFARI&path=Location
+Restrictions
 
-Safari ⇾ Microphone
+prefs:root=General&path=Restrictions
 
-> prefs:root=SAFARI&path=Microphone
+Older iOS versions used this destination. Modern iOS uses Screen Time for many of these controls.
 
-Safari ⇾ Page Zoom
+⸻
 
-> prefs:root=SAFARI&path=Page%20Zoom
+Old Privacy naming
 
-Safari ⇾ Reader
+prefs:root=Privacy
 
-> prefs:root=SAFARI&path=Reader
+Modern Settings displays this area as Privacy & Security.
 
-Safari ⇾ Request Desktop Website
+⸻
 
-> prefs:root=SAFARI&path=Request%20Desktop%20Website
+Known Changes
 
-Settings ⇾ Screen Time
+Wallpaper
 
-> prefs:root=SCREEN_TIME
+Older versions:
 
-----------------------
+prefs:root=Wallpaper
 
-Screen Time ⇾ Always Allowed
+Newer iOS releases may open the main Settings page rather than navigating directly to Wallpaper.
 
-> prefs:root=SCREEN_TIME&path=ALWAYS_ALLOWED
+⸻
 
-Screen Time ⇾ App Limits
+Wi-Fi
 
-> prefs:root=SCREEN_TIME&path=APP_LIMITS
+Older versions commonly supported:
 
-Screen Time ⇾ Communication Limits
+prefs:root=WIFI
 
-> prefs:root=SCREEN_TIME&path=COMMUNICATION_LIMITS
+and:
 
-Screen Time ⇾ Content & Privacy Restrictions
+App-prefs:root=WIFI
 
-> prefs:root=SCREEN_TIME&path=CONTENT_PRIVACY
+Behavior has become less reliable in newer iOS releases, particularly when opened programmatically by third-party apps.
 
-Screen Time ⇾ Downtime
+⸻
 
-> prefs:root=SCREEN_TIME&path=DOWNTIME
+Personal Hotspot
 
-Settings ⇾ Shortcuts
+Older versions commonly used:
 
-> prefs:root=SHORTCUTS
+prefs:root=INTERNET_TETHERING
 
---------------------
+and:
 
-Shortcuts ⇾ iCloud Sync
+App-prefs:root=INTERNET_TETHERING
 
-> prefs:root=SHORTCUTS#WFCloudKitSyncEnabled
+Direct navigation behavior has changed in newer iOS releases.
 
-Shortcuts ⇾ iCloud Sync
+⸻
 
-> prefs:root=SHORTCUTS#WFCloudKitSyncOrderEnabled
+Passwords
 
-Shortcuts ⇾ Legal Notices
+Older:
 
-> prefs:root=SHORTCUTS&path=Legal%20Notices
+prefs:root=ACCOUNTS_AND_PASSWORDS
 
-Settings ⇾ Siri & Search
+Modern:
 
-> prefs:root=SIRI
+prefs:root=PASSWORDS
 
-> prefs-siri-shortcuts://
+⸻
 
----------------
+Privacy
 
-Siri & Search ⇾ Allow Siri When Locked
+Older naming:
 
-> prefs:root=SIRI#ASSISTANT_LOCK_SCREEN_ACCESS
+prefs:root=Privacy
 
-Siri & Search ⇾ Language
+Modern Settings UI:
 
-> prefs:root=SIRI&path=LANGUAGE_ID
+Privacy & Security
 
-Siri & Search ⇾ Siri Voice
+Modern navigation may also use:
 
-> prefs:root=SIRI&path=VOICE_ID
+settings-navigation://com.apple.Settings.PrivacyAndSecurity
 
-Siri & Search ⇾ Siri Responses
+⸻
 
-> prefs:root=SIRI&path=VOICE_FEEDBACK_ID
+iOS 26+
 
-Siri & Search ⇾ My Information
+iOS 26 introduced/expanded Settings navigation behavior using:
 
-> prefs:root=SIRI&path=MY_INFO
+settings-navigation://
 
-Siri & Search ⇾ Suggestions in Search
+Examples:
 
-> prefs:root=SIRI#Suggestions%20in%20Search
+Privacy & Security
 
-Siri & Search ⇾ Suggestions while Searching
+settings-navigation://com.apple.Settings.PrivacyAndSecurity
 
-> prefs:root=SIRI#Suggestions%20while%20Searching
+Location
 
-Siri & Search ⇾ Suggestions in Look Up
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCATION
 
-> prefs:root=SIRI#Suggestions%20in%20Look%20Up
+Microphone
 
-Siri & Search ⇾ Suggestions on Lock Screen
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/MICROPHONE
 
-> prefs:root=SIRI#Suggestions%20on%20Lock%20Screen
+Camera
 
-Siri & Search ⇾ Suggestions on Home Screen
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/CAMERA
 
-> prefs:root=SIRI#Suggestions%20on%20Home%20Screen
+Photos
 
-Siri & Search ⇾ Suggestions when Sharing
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/PHOTOS
 
-> prefs:root=SIRI#Suggestions%20when%20Sharing
+Bluetooth
 
-Settings ⇾ Sounds & Haptics
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/BT_PERIPHERAL
 
-> prefs:root=Sounds
+Tracking
 
------------------
+settings-navigation://com.apple.Settings.PrivacyAndSecurity/USER_TRACKING
 
-Headphone Safety
+Lockdown Mode
 
-(open menu)
+settings-navigation://com.apple.Settings.PrivacyAndSecurity#LOCKDOWN_MODE
 
-> prefs:root=Sounds&path=HEADPHONE_LEVEL_LIMIT_SETTING
+Apple Account → Password & Security
 
- 
+settings-navigation://com.apple.Settings.AppleAccount/PASSWORD_AND_SECURITY
 
-Headphone Notifications (jump to section)
+Apple Account → Payment & Shipping
 
-> prefs:root=Sounds&path=HEADPHONE_LEVEL_LIMIT_SETTING#SHSHeadphoneWeeklyNotificationsKey
+settings-navigation://com.apple.Settings.AppleAccount/PAYMENT_AND_SHIPPING
 
-Sounds & Haptics ⇾ Headphone Safety ⇾ Lightning Adapters (open menu)
+Apple Account → Subscriptions
 
-> prefs:root=Sounds&path=HEADPHONE_LEVEL_LIMIT_SETTING/HEADPHONE_LIGHTNING_ADAPTERS
+settings-navigation://com.apple.Settings.AppleAccount/SUBSCRIPTIONS
 
-Sounds & Haptics ⇾ Headphone Safety ⇾ Reduce Loud Sounds (jump to toggle)
+Notes
 
-> prefs:root=Sounds&path=HEADPHONE_LEVEL_LIMIT_SETTING#SHSHeadphoneLevelLimitSwitchKey
+settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes
 
-Sounds & Haptics ⇾ Ringer and Alerts (jump to section)
+⸻
 
-> prefs:root=Sounds#RINGER_AND_ALERT_GROUP
+iOS 27
 
-Sounds & Haptics ⇾ Change with Buttons (jump to toggle)
+Status: ongoing compatibility testing
 
-> prefs:root=Sounds#CHANGE_WITH_BUTTONS
+iOS 27 is a newer major iOS release and undocumented Settings URLs may change
+without notice.
 
-Sounds & Haptics ⇾ Sounds and Vibration Patterns (jump to section)
+This repository should not claim that an undocumented URL works on iOS 27
+unless it has been individually verified.
 
-> prefs:root=Sounds#SOUNDS_ALERT_GROUP
+When reporting an iOS 27 result, include:
 
-Sounds & Haptics ⇾ Ringtone (open menu)
+Device:
+iOS version:
+URL:
+Opened from:
+Result:
+Expected result:
 
-> prefs:root=Sounds&path=Ringtone
+Example:
 
-Sounds & Haptics ⇾ Text Tone (open menu)
+Device: iPhone 17 Pro
+iOS: 27.0
+URL: prefs:root=WIFI
+Opened from: Shortcuts
+Result: Settings opened
+Expected: Wi-Fi page
 
-> prefs:root=Sounds&path=Text_Messages
+⸻
 
-Sounds & Haptics ⇾ New Voicemail (open menu)
+Testing
 
-> prefs:root=Sounds&path=Voicemail
+If you are testing these URLs, test them separately from:
 
-Sounds & Haptics ⇾ New Mail (open menu)
+1. Shortcuts
+2. Safari
+3. A native iOS application
+4. Xcode Simulator
+5. A physical iPhone
 
-> prefs:root=Sounds&path=NEW_MAIL
+These environments may behave differently.
 
-Sounds & Haptics ⇾ Sent Mail (open menu)
+For application testing:
 
-> prefs:root=Sounds&path=SENT_MAIL
+if let url = URL(string: "prefs:root=WIFI") {
+UIApplication.shared.open(url)
+}
 
-Sounds & Haptics ⇾ Calendar Alerts (open menu)
+Do not assume that success means the URL is officially supported.
 
-> prefs:root=Sounds&path=Calendar%20Alarm
+⸻
 
-Sounds & Haptics ⇾ Reminder Alerts (open menu)
+URL Encoding
 
-> prefs:root=Sounds&path=Reminder%20Alerts
+Settings URLs frequently contain characters that must be percent encoded.
 
-Sounds & Haptics ⇾ AirDrop (open menu)
+For example:
 
-> prefs:root=Sounds&path=AIRDROP
+&
 
-Sounds & Haptics ⇾ Keyboard Clicks (jump to toggle)
+may appear inside a path as:
 
-> prefs:root=Sounds#KEYBOARD_SOUND_SWITCH
+%26
 
-Sounds & Haptics ⇾ Lock Sound (jump to toggle)
+A space:
 
-> prefs:root=Sounds#LOCK_SOUND_SWITCH
+becomes:
 
-Sounds & Haptics ⇾ System Haptics (jump to toggle)
+%20
 
-> prefs:root=Sounds&path=SOUND_EFFECTS
+A colon:
 
-Settings ⇾ Stocks
+:
 
-> prefs:root=STOCKS
+can become:
 
------------------
+%3A
 
-Stocks ⇾ Privacy
+Example:
 
-> prefs:root=STOCKS#Privacy
+prefs:root=MUSIC&path=com.apple.Music%3AEQ
 
-Stocks ⇾ Reset Identifier
+When adding new URLs, preserve the encoding used by the tested URL.
 
-> prefs:root=STOCKS#reset_identifier
+⸻
 
-Settings ⇾ TV
+How to Open a URL
 
-> prefs:root=TVAPP
+Swift
 
-----------------
+import UIKit
+let urlString = "prefs:root=WIFI"
+if let url = URL(string: urlString) {
+UIApplication.shared.open(url)
+}
 
-TV ⇾ Use Cellular Data
+Again, prefs: and App-prefs: are undocumented and should not be treated as public APIs.
 
-> prefs:root=TVAPP#com.apple.videos%3AVideosUseCellularDataEnabledSetting
+⸻
 
-TV ⇾ Playback Quality
+Contributing
 
-> prefs:root=TVAPP#com.apple.videos%3APlaybackQualityGroup
+If you discover a new Settings URL or verify an existing one, please provide:
 
-TV ⇾ Video Definition
+iOS version:
+Device:
+Settings destination:
+URL:
+How it was opened:
+Result:
 
-> prefs:root=TVAPP&path=com.apple.videos%3APreferredPurchaseResolution
+Example:
 
-TV ⇾ Home Sharing
+iOS version: 27.0
+Device: iPhone
+Destination: Privacy & Security → Microphone
+URL: settings-navigation://com.apple.Settings.PrivacyAndSecurity/MICROPHONE
+Opened from: Shortcuts
+Result: Opened successfully
 
-> prefs:root=TVAPP#com.apple.videos%3AHomeSharingFooter
+Please do not report a URL as universally working based on a single device or iOS version.
 
-Settings ⇾ TV Provider
+⸻
 
-> prefs-tvprovider://
+Sources & References
 
-> prefs:root=VIDEO_SUBSCRIBER
+This repository is a community-maintained collection and is not affiliated with Apple.
 
-Settings ⇾ Voice Memos
+Useful references include:
 
-> prefs:root=VOICE_MEMOS
+- Apple Developer Documentation
+- Apple Developer Forums
+- iOS Settings reverse-engineering research
+- Community testing
+- Previous versions of this repository
+- Community-maintained iOS Settings URL databases
 
-Settings ⇾ VPN
+⸻
 
-> prefs:root=General&path=VPN
+Disclaimer
 
-Settings ⇾ Wallet
+This project is not affiliated with Apple Inc.
 
-> prefs:root=PASSBOOK
+prefs:, App-prefs: and settings-navigation:// destinations documented here are generally undocumented/private implementation details unless explicitly stated otherwise.
 
-Settings ⇾ Wallpaper
+Apple may remove, rename, relocate, or change these destinations at any time.
 
-> prefs:root=Wallpaper
+Use them at your own risk.
 
-Settings ⇾ Wi-Fi
+⸻
+@1mehdifaraji
 
-> prefs:root=WIFI
+License
 
-Accessibility Settings
+MIT
 
-The below URLs can all be found manually by navigating to Settings ⇾ Accessibility, and they are grouped by Vision, Physical and Motor, Hearing, and General.
+⸻
 
-> prefs:root=ACCESSIBILITY
+# Expanded URL Reference Ledger
 
-> prefs:root=ACCESSIBILITY_DESCRIPTION
+This section is intentionally verbose. It is a machine-friendly and human-readable
+index of URL strings preserved or observed by this project. It does not imply
+that every entry is currently functional, public, or App Store-safe.
 
-> prefs:root=ACCESSIBILITY_KEYWORDS
+For current iOS 26-era routes, this README distinguishes documented Apple APIs
+from undocumented Settings destinations. A community-maintained iOS 26.2 catalog
+was used as an additional cross-reference for current route names and examples.
 
-> prefs:root=ACCESSIBILITY#VISION
+## Status vocabulary
 
-> prefs:root=ACCESSIBILITY#MOBILITY_HEADING
+- **Undocumented** — not a public Apple URL API.
+- **Legacy** — retained for historical/compatibility research.
+- **Current cross-reference** — present in the referenced iOS 26.2 community catalog.
+- **Requires verification** — behavior should be tested on the exact iOS/device/context.
+- **Documented API** — use Apple's public API when the task is opening your own app's settings.
 
-> prefs:root=ACCESSIBILITY#HEARING_HEADING
+## Important interpretation rule
 
-> prefs:root=ACCESSIBILITY#GENERAL_HEADING
+A URL appearing in this README means only that the string is part of the project's
+reference dataset. It is not a promise that Settings will honor the destination.
 
-Vision Accessibility Settings
+### 001. `Settings` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ VoiceOver
+**URL:** `prefs:root=WIFI`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver (open menu)
+### 002. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE
+**URL:** `App-prefs:root=WIFI`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ VoiceOver (jump to toggle)
+### 003. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#VoiceOverTouchEnabled
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Speaking Rate (jump to slider)
+### 004. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#SpeakingRate
+**URL:** `prefs:root=APPLE_ACCOUNT`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Speech (highlight menu item)
+### 005. `Apple Account / iCloud` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#Speech
+**URL:** `App-prefs:root=APPLE_ACCOUNT`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Speech ⇾ Voice (highlight menu item)
+### 006. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Speech#DialectCell
+**URL:** `prefs:root=APPLE_ACCOUNT&path=PASSWORD_AND_SECURITY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille (highlight menu item)
+### 007. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#Braille
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/PASSWORD_AND_SECURITY`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Output (highlight menu item)
+### 008. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#BrailleDisplayOutput
+**URL:** `prefs:root=APPLE_ACCOUNT&path=PAYMENT_AND_SHIPPING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Output ⇾ Uncontracted Six-dot Braille (highlight menu item)
+### 009. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayOutput#SixDotBraille
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/PAYMENT_AND_SHIPPING`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Output ⇾ Uncontracted Eight-dot Braille (highlight menu item)
+### 010. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayOutput#EightDotBraille
+**URL:** `prefs:root=APPLE_ACCOUNT&path=SUBSCRIPTIONS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Output ⇾ Contracted Braille (highlight menu item)
+### 011. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayOutput#ContractedBraille
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/SUBSCRIPTIONS`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Input (highlight menu item)
+### 012. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#BrailleDisplayInput
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Input ⇾ Uncontracted Six-dot Braille (highlight menu item)
+### 013. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayInput#SixDotBraille
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/STORAGE_AND_BACKUP`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Input ⇾ Uncontracted Eight-dot Braille (highlight menu item)
+### 014. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayInput#EightDotBraille
+**URL:** `prefs:root=APPLE_ACCOUNT&path=APPLE_ACCOUNT_CONTACT`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Input ⇾ Contracted Braille (highlight menu item)
+### 015. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayInput#ContractedBraille
+**URL:** `prefs:root=APPLE_ACCOUNT&path=LOCATION_SHARING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Input ⇾ Automatic Translation (jump to toggle)
+### 016. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleDisplayInput#GRADE2_AUTO_TRANSLATE
+**URL:** `prefs:root=APPLE_ACCOUNT&path=Family`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Screen Input (highlight menu item)
+### 017. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#BrailleGesturesInput
+**URL:** `prefs:root=AIRPLANE_MODE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Screen Input ⇾ Uncontracted Six-dot Braille (highlight menu item)
+### 018. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleGesturesInput#SixDotBraille
+**URL:** `App-prefs:root=AIRPLANE_MODE`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Screen Input ⇾ Uncontracted Eight-dot Braille (highlight menu item)
+### 019. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleGesturesInput#EightDotBraille
+**URL:** `prefs:root=Bluetooth`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Screen Input ⇾ Contracted Braille (highlight menu item)
+### 020. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleGesturesInput#ContractedBraille
+**URL:** `App-prefs:root=Bluetooth`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Screen Input ⇾ Reverse Dot Positions (jump to toggle)
+### 021. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/BrailleGesturesInput#SHOULD_REVERSE_DOTS
+**URL:** `prefs:root=MOBILE_DATA_SETTINGS_ID`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Tables (highlight menu item)
+### 022. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#tableIdentifier
+**URL:** `App-prefs:root=MOBILE_DATA_SETTINGS_ID`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Braille Tables ⇾ Add Braille Table (highlight menu item)
+### 023. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/tableIdentifier#ADD_NEW_BRAILLE_LANGUAGE
+**URL:** `prefs:root=INTERNET_TETHERING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells (highlight menu item)
+### 024. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#STATUS_CELL
+**URL:** `App-prefs:root=INTERNET_TETHERING`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells (jump to section)
+### 025. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/STATUS_CELL#STATUS_CELL_POSITION
+**URL:** `prefs:root=General&path=VPN`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells ⇾ Left (highlight menu item)
+### 026. `General` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/STATUS_CELL#STATUS_CELL_LEFT
+**URL:** `App-prefs:root=General&path=VPN`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells ⇾ Right (highlight menu item)
+### 027. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/STATUS_CELL#STATUS_CELL_RIGHT
+**URL:** `prefs:root=NOTIFICATIONS_ID`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells ⇾ Show General Status (jump to toggle)
+### 028. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/STATUS_CELL#StatusCellGeneral
+**URL:** `App-prefs:root=NOTIFICATIONS_ID`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Status Cells ⇾ Show Text Status (jump to toggle)
+### 029. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille/STATUS_CELL#StatusCellTextStyle
+**URL:** `prefs:root=NOTIFICATIONS_ID&path=SCHEDULED_SUMMARY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Equations use Nemeth Code (jump to toggle)
+### 030. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#ALWAYS_USE_NEMETH
+**URL:** `prefs:root=NOTIFICATIONS_ID&path=NOTIFICATION_STYLE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Show Onscreen Keyboard (jump to toggle)
+### 031. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#SHOW_SW_KEYBOARD
+**URL:** `prefs:root=Sounds`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Turn Pages when Panning (jump to toggle)
+### 032. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#AUTO_TURN_PAGES
+**URL:** `App-prefs:root=Sounds`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Braille ⇾ Word Wrap (jump to toggle)
+### 033. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Braille#WORD_WRAP
+**URL:** `prefs:root=Sounds&path=Ringtone`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity (highlight menu item)
+### 034. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#Verbosity
+**URL:** `prefs:root=Sounds&path=TextTone`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Punctuation (highlight menu item)
+### 035. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity#voiceOverPunctuationGroup
+**URL:** `prefs:root=DO_NOT_DISTURB`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Table Headers (jump to toggle)
+### 036. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity#speakTableHeader
+**URL:** `App-prefs:root=DO_NOT_DISTURB`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Media Descriptions (highlight menu item)
+### 037. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity#voiceOverMediaDescriptions
+**URL:** `prefs:root=SCREEN_TIME`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Media Descriptions ⇾ Off (highlight menu item)
+### 038. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity/voiceOverMediaDescriptions#mdOff
+**URL:** `App-prefs:root=SCREEN_TIME`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Media Descriptions ⇾ Speech (highlight menu item)
+### 039. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity/voiceOverMediaDescriptions#mdSpeech
+**URL:** `prefs:root=General`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Media Descriptions ⇾ Braille (highlight menu item)
+### 040. `General` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity/voiceOverMediaDescriptions#mdBraille
+**URL:** `App-prefs:root=General`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Verbosity ⇾ Media Descriptions ⇾ Speech and Braille (highlight menu item)
+### 041. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Verbosity/voiceOverMediaDescriptions#mdSpeechAndBraille
+**URL:** `prefs:root=General&path=About`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Audio (highlight menu item)
+### 042. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#Audio
+**URL:** `prefs:root=General&path=SOFTWARE_UPDATE_LINK`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Audio ⇾ Audio Ducking (jump to toggle)
+### 043. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Audio#AUDIO_DUCKING
+**URL:** `prefs:root=General&path=STORAGE_MGMT`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Audio ⇾ Auto-select Speaker in Call (jump to toggle)
+### 044. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Audio#ROUTE_TO_SPEAKER
+**URL:** `prefs:root=General&path=STORAGE_MGMT#OFFLOAD`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Audio ⇾ Send to HDMI (jump to toggle)
+### 045. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Audio#ROUTE_TO_HDMI
+**URL:** `prefs:root=General&path=AUTOFILL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Commands (highlight menu item)
+### 046. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#CUSTOMIZE_COMMANDS
+**URL:** `prefs:root=General&path=AUTOFILL#AUTOFILL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Activities (highlight menu item)
+### 047. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#Activities
+**URL:** `prefs:root=General&path=AUTOFILL#SET_UP_VERIFICATION_CODES`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Activities ⇾ Programming (highlight menu item)
+### 048. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Activities#Programming
+**URL:** `prefs:root=General&path=AUTOFILL#CLEAN_UP_VERIFICATION_CODES`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Activities ⇾ Add Activity (highlight menu item)
+### 049. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/Activities#New
+**URL:** `prefs:root=General&path=ManagedConfigurationList`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Rotor (highlight menu item)
+### 050. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#WebRotor
+**URL:** `prefs:root=General&path=DICTIONARY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Rotor Actions (highlight menu item)
+### 051. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#ROTOR_ACTIONS
+**URL:** `prefs:root=General&path=INTERNATIONAL`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Rotor Actions ⇾ Edit Apps on Home Screen (jump to toggle)
+### 052. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/ROTOR_ACTIONS#EDIT_APPS_ACTION
+**URL:** `prefs:root=General&path=INTERNATIONAL/LOCALE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing (highlight menu item)
+### 053. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#TypingOptions
+**URL:** `prefs:root=General&path=INTERNATIONAL/CALENDAR`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Typing Style (highlight menu item)
+### 054. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions#TYPING_MODE_TITLE
+**URL:** `prefs:root=General&path=INTERNATIONAL/NUMBERING_SYSTEM`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Typing Style ⇾ Standard Typing (highlight menu item)
+### 055. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/TYPING_MODE_TITLE#TYPING_MODE_STANDARD
+**URL:** `prefs:root=General&path=INTERNATIONAL/TEMPERATURE_UNIT`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Typing Style ⇾ Touch Typing (highlight menu item)
+### 056. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/Typing%20Style#TYPING_MODE_TOUCH_TYPING
+**URL:** `prefs:root=General&path=INTERNATIONAL#PREFERRED_LANGUAGE_GROUP`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Typing Style ⇾ Direct Touch Typing (highlight menu item)
+### 057. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/Typing%20Style#TYPING_MODE_DIRECT_TOUCH
+**URL:** `prefs:root=General&path=INTERNATIONAL#ADD_PREFERRED_LANGUAGE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Phonetic Feedback (highlight menu item)
+### 058. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions#PHONETICS_TITLE
+**URL:** `prefs:root=General&path=AIRDROP_LINK`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Phonetic Feedback ⇾ Off (highlight menu item)
+### 059. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/PHONETICS_TITLE#PHONETICS_OFF
+**URL:** `prefs:root=General&path=AIRDROP_LINK#AIRDROP_NFC_ID`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Phonetic Feedback ⇾ Character and Phonetics (highlight menu item)
+### 060. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/PHONETICS_TITLE#PHONETICS_SPEAK_AFTER_DELAY
+**URL:** `prefs:root=General&path=CONTINUITY_SPEC`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Phonetic Feedback ⇾ Phonetics Only (highlight menu item)
+### 061. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/PHONETICS_TITLE#PHONETICS_SPEAK_EXCLUSIVELY
+**URL:** `prefs:root=General&path=CONTINUITY_SPEC#CONTINUITY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Typing Feedback (highlight menu item)
+### 062. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions#TYPING_FEEDBACK
+**URL:** `prefs:root=General&path=CONTINUITY_SPEC#TRANSFER_TO_HOMEPOD`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Modifier Keys (highlight menu item)
+### 063. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions#MODIFIER_KEYS
+**URL:** `prefs:root=General&path=CONTINUITY_SPEC#AUTOMATICALLY_AIRPLAY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Modifier Keys ⇾ Control + Option (highlight menu item)
+### 064. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/MODIFIER_KEYS#VO_MODIFIER_KEY_CONTROL_OPTIONS
+**URL:** `prefs:root=General&path=CONTINUITY_SPEC#WOMBAT_CAMERA`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Modifier Keys ⇾ Caps Lock (highlight menu item)
+### 065. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions/MODIFIER_KEYS#VO_MODIFIER_KEY_CAPS_LOCK
+**URL:** `prefs:root=General&path=CARPLAY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Typing ⇾ Keyboard Interaction Time (highlight menu item)
+### 066. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/TypingOptions#KEYBOARD_TIMING_TIMEOUT
+**URL:** `prefs:root=General&path=DATE_AND_TIME`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Always Speak Notifications (jump to toggle)
+### 067. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#SPEAK_NOTIFICATIONS
+**URL:** `prefs:root=General&path=Keyboard`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Navigate Images (highlight menu item)
+### 068. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#IncludeUnlabeledImages
+**URL:** `prefs:root=General&path=Fonts`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Navigate Images ⇾ Always (highlight menu item)
+### 069. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/IncludeUnlabeledImages#NAV_IMG_ALWAYS
+**URL:** `prefs:root=General&path=LEGAL_AND_REGULATORY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Navigate Images ⇾ With descriptions (highlight menu item)
+### 070. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/IncludeUnlabeledImages#NAV_IMG_W_DESCRIPTIONS
+**URL:** `prefs:root=General&path=COVERAGE/`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Navigate Images ⇾ Never (highlight menu item)
+### 071. `Accessibility` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/IncludeUnlabeledImages#NAV_IMG_NEVER
+**URL:** `prefs:root=ACCESSIBILITY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Large Cursor (jump to toggle)
+### 072. `Accessibility` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#CursorStyle
+**URL:** `App-prefs:root=ACCESSIBILITY`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Caption Panel (jump to toggle)
+### 073. `Accessibility` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#CaptionPanel
+**URL:** `prefs:root=ACCESSIBILITY&path=VOICEOVER`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Double-tap Timeout (jump to toggle)
+### 074. `Accessibility` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE#DOUBLE_TAP_INTERVAL_TITLE
+**URL:** `prefs:root=ACCESSIBILITY&path=ZOOM`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-VoiceOver ⇾ Double-tap Timeout ⇾ Double-tap Timeout (jump to buttons)
+### 075. `Accessibility` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=VOICEOVER_TITLE/DOUBLE_TAP_INTERVAL_TITLE#NumericalPreferencePickerGroupIdentifier
+**URL:** `prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Zoom
+### 076. `Accessibility` — `prefs:`
 
-Zoom (open menu)
+**URL:** `prefs:root=ACCESSIBILITY&path=MOTION`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE
+### 077. `Accessibility` — `prefs:`
 
-Zoom ⇾ Zoom (jump to toggle)
+**URL:** `prefs:root=ACCESSIBILITY&path=SPEECH`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomTouchEnabled
+### 078. `Accessibility` — `prefs:`
 
-Zoom ⇾ Follow Focus (jump to toggle)
+**URL:** `prefs:root=ACCESSIBILITY&path=TOUCH`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomShouldFollowFocus
+### 079. `Accessibility` — `prefs:`
 
-Zoom ⇾ Smart Typing (jump to toggle)
+**URL:** `prefs:root=ACCESSIBILITY&path=FACE_ID`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomAlwaysUseWindowZoomForTyping
+### 080. `Accessibility` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts (highlight menu item)
+**URL:** `prefs:root=ACCESSIBILITY&path=SwitchControl`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomKeyboardShortcuts
+### 081. `Accessibility` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Keybord Shortcuts (jump to toggle)
+**URL:** `prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomEnableKeyboardShortcuts
+### 082. `Accessibility` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Adjust Zoom Level (jump to toggle)
+**URL:** `prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutAdjustZoomLevel
+### 083. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Toggle Zoom (jump to toggle)
+**URL:** `prefs:root=Privacy`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutToggleZoom
+### 084. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Move Zoom Window (jump to toggle)
+**URL:** `prefs:root=Privacy&path=LOCATION`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutPanZoom
+### 085. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Resize Zoom Window (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/LOCATION`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutResizeZoomWindow
+### 086. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Switch Zoom Region (jump to toggle)
+**URL:** `prefs:root=Privacy&path=LOCATION/LOCATION_SHARING`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutSwitchZoomMode
+### 087. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Temporarily Toggle Zoom (jump to toggle)
+**URL:** `prefs:root=Privacy&path=CONTACTS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutTempToggleZoom
+### 088. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Keybord Shortcuts ⇾ Zoom with Scroll Wheel (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/CONTACTS`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomKeyboardShortcuts#ZoomKeyboardShortcutScrollWheel
+### 089. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Zoom Controller (highlight menu item)
+**URL:** `prefs:root=Privacy&path=CALENDARS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomSlug
+### 090. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Zoom Region (highlight menu item)
+**URL:** `prefs:root=Privacy&path=PHOTOS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomLensMode
+### 091. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Zoom Controller ⇾ Full Screen Zoom (highlight menu item)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/PHOTOS`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomLensMode#Fullscreen
+### 092. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Zoom Controller ⇾ Window Zoom (highlight menu item)
+**URL:** `prefs:root=Privacy&path=CAMERA`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomLensMode#Window
+### 093. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Zoom Filter (open menu)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/CAMERA`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomFilter
+### 094. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Zoom Filter ⇾ None (highlight menu item)
+**URL:** `prefs:root=Privacy&path=MICROPHONE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomFilter#None
+### 095. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Zoom Filter ⇾ Inverted (highlight menu item)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/MICROPHONE`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomFilter#Inverted
+### 096. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Zoom Filter ⇾ Grayscale (highlight menu item)
+**URL:** `prefs:root=Privacy&path=BT_PERIPHERAL`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomFilter#Grayscale
+### 097. `Settings` — `settings-navigation://`
 
-Zoom ⇾ Zoom Filter ⇾ Grayscale (highlight menu item)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/BT_PERIPHERAL`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE/ZoomFilter#Grayscale
+### 098. `Privacy & Security` — `prefs:`
 
-Zoom ⇾ Maximum Zoom Level (jump to slider)
+**URL:** `prefs:root=Privacy&path=SPEECH_RECOGNITION`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=ZOOM_TITLE#ZoomFactorGroup
+### 099. `Privacy & Security` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Magnifier
+**URL:** `prefs:root=Privacy&path=HEALTH`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Magnifier (open menu)
+### 100. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=MAGNIFIER_TITLE
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/HEALTH`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Magnifier ⇾ Magnifier (jump to toggle)
+### 101. `Privacy & Security` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MAGNIFIER_TITLE#MagnifierEnabled
+**URL:** `prefs:root=Privacy&path=HEALTH_DATA`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Magnifier ⇾ Auto Brightness (jump to toggle)
+### 102. `Privacy & Security` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MAGNIFIER_TITLE#AutoBrightness
+**URL:** `prefs:root=Privacy&path=WILLOW`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Display & Text Size
+### 103. `Privacy & Security` — `prefs:`
 
-Display & Text Size (open menu)
+**URL:** `prefs:root=Privacy&path=MEDIALIBRARY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT
+### 104. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Bold Text (jump to toggle)
+**URL:** `prefs:root=Privacy&path=FILEACCESS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#ENHANCE_TEXT_LEGIBILITY
+### 105. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Larger Text (highlight menu item)
+**URL:** `prefs:root=Privacy&path=USER_TRACKING`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#LARGER_TEXT
+### 106. `Settings` — `settings-navigation://`
 
-Display & Text Size ⇾ Button Shapes (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/USER_TRACKING`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#BUTTON_SHAPES
+### 107. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ On/Off Labels (jump to toggle)
+**URL:** `prefs:root=Privacy&path=ADVERTISING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#OnOffLabels
+### 108. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Reduce Transparency (jump to toggle)
+**URL:** `prefs:root=Privacy&path=PROBLEM_REPORTING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#REDUCE_TRANSPARENCY
+### 109. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Increase Contrast (jump to toggle)
+**URL:** `prefs:root=Privacy&path=PRIVACY_REPORT`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#TEXT_COLORS_DARKEN
+### 110. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Differentiate Without Color (jump to toggle)
+**URL:** `prefs:root=Privacy#LOCKDOWN_MODE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#DIFFERENTIATE_WITHOUT_COLOR
+### 111. `Settings` — `settings-navigation://`
 
-Display & Text Size ⇾ Smart Invert (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity#LOCKDOWN_MODE`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#SMART_INVERT
+### 112. `Privacy & Security` — `prefs:`
 
-Display & Text Size ⇾ Classic Invert (jump to toggle)
+**URL:** `prefs:root=Privacy#NUDITY_DETECTION`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#CLASSIC_INVERT
+### 113. `Settings` — `prefs:`
 
-Display & Text Size ⇾ Color Filters (highlight menu item)
+**URL:** `prefs:root=BATTERY_USAGE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#DISPLAY_FILTER_COLOR
+### 114. `Settings` — `App-prefs:`
 
-Display & Text Size ⇾ Color Filters ⇾ Color Filters (jump to toggle)
+**URL:** `App-prefs:root=BATTERY_USAGE`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT/DISPLAY_FILTER_COLOR#FILTER_COLOR_ENABLED
+### 115. `Display & Brightness` — `prefs:`
 
-Display & Text Size ⇾ Reduce White Point (jump to toggle)
+**URL:** `prefs:root=DISPLAY`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#WHITE_POINT
+### 116. `Display & Brightness` — `App-prefs:`
 
-Display & Text Size ⇾ Auto Brightness (jump to toggle)
+**URL:** `App-prefs:root=DISPLAY`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=DISPLAY_AND_TEXT#AUTO_BRIGHTNESS
+### 117. `Display & Brightness` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Motion
+**URL:** `prefs:root=DISPLAY&path=AUTOLOCK`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Motion (open menu)
+### 118. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MOTION_TITLE
+**URL:** `prefs:root=DISPLAY&path=TEXT_SIZE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Motion ⇾ Reduce Motion (jump to toggle)
+### 119. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MOTION_TITLE#REDUCE_MOTION_ID
+**URL:** `prefs:root=DISPLAY&path=ZOOM`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Motion ⇾ Auto-Play Message Effects (jump to toggle)
+### 120. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MOTION_TITLE#ReduceMotionAutoplayMessagesEffects
+**URL:** `prefs:root=DISPLAY#LockAppearance`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Motion ⇾ Auto-Play Video Previews (jump to toggle)
+### 121. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=MOTION_TITLE#ReduceMotionAutoplayVideoPreviews
+**URL:** `prefs:root=DISPLAY#TrueTone`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Spoken Content
+### 122. `Display & Brightness` — `prefs:`
 
-Spoken Content (open menu)
+**URL:** `prefs:root=DISPLAY&path=BLUE_LIGHT_REDUCTION`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE
+### 123. `Settings` — `prefs:`
 
-Spoken Content ⇾ Speak Selection (jump to toggle)
+**URL:** `prefs:root=Wallpaper`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#QUICK_SPEAK_TITLE
+### 124. `Siri` — `prefs:`
 
-Spoken Content ⇾ Speak Screen (jump to toggle)
+**URL:** `prefs:root=SIRI`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#SpeakThisEnabled
+### 125. `Siri` — `App-prefs:`
 
-Spoken Content ⇾ Speech Controller (highlight menu item)
+**URL:** `App-prefs:root=SIRI`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#SpeechController
+### 126. `Settings` — `prefs:`
 
-Spoken Content ⇾ Speech Controller ⇾ Show Controller (jump to toggle)
+**URL:** `prefs:root=PASSCODE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/SpeechController#CustomizeMouseButtons
+### 127. `Settings` — `App-prefs:`
 
-Spoken Content ⇾ Highlight Content (highlight menu item)
+**URL:** `App-prefs:root=PASSCODE`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#QuickSpeakHighlight
+### 128. `Settings` — `prefs:`
 
-Spoken Content ⇾ Typing Feedback (highlight menu item)
+**URL:** `prefs:root=EmergencySOS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#TypingFeedback
+### 129. `Settings` — `App-prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Character Feedback (jump to section)
+**URL:** `App-prefs:root=EmergencySOS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#TYPING_FEEDBACK_HEADER
+### 130. `App Store` — `prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Characters (jump to toggle)
+**URL:** `prefs:root=STORE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#LETTER
+### 131. `App Store` — `App-prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Character Hints (jump to toggle)
+**URL:** `App-prefs:root=STORE`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#PhoneticFeedback
+### 132. `Wallet & Apple Pay` — `prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Speak Words (jump to toggle)
+**URL:** `prefs:root=PASSBOOK`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#WORD_FEEDBACK
+### 133. `Wallet & Apple Pay` — `App-prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Speak Auto-text (jump to toggle)
+**URL:** `App-prefs:root=PASSBOOK`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#SPEAK_AUTOCORRECTIONS
+### 134. `Wallet & Apple Pay` — `prefs:`
 
-Spoken Content ⇾ Typing Feedback ⇾ Hold to Speak Predictions (jump to toggle)
+**URL:** `prefs:root=PASSBOOK#Apple%C2%A0Cash`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE/TypingFeedback#QUICKTYPE_WORD_FEEDBACK
+### 135. `Wallet & Apple Pay` — `prefs:`
 
-Spoken Content ⇾ Voices (highlight menu item)
+**URL:** `prefs:root=PASSBOOK#SETTINGS_PAYMENT_CARDS_GROUP`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#QuickSpeakAccents
+### 136. `Wallet & Apple Pay` — `prefs:`
 
-Spoken Content ⇾ Voices (jump to slider)
+**URL:** `prefs:root=PASSBOOK#Add%20Card`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SPEECH_TITLE#QuickSpeakRateGroup
+### 137. `Wallet & Apple Pay` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Audio Descriptions
+**URL:** `prefs:root=PASSBOOK#Double-Click%20Side%20Button`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Audio Descriptions (open menu)
+### 138. `Wallet & Apple Pay` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=DESCRIPTIVE_VIDEO
+**URL:** `prefs:root=PASSBOOK#ORDER_TRACKING`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Audio Descriptions ⇾ Audio Descriptions (jump to slider)
+### 139. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=DESCRIPTIVE_VIDEO#DESCRIPTIVE_VIDEO_SETTING
+**URL:** `prefs:root=PASSWORDS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Physical and Motor Accessibility Settings
+### 140. `Settings` — `App-prefs:`
 
-Settings ⇾ Accessibility ⇾ Touch
+**URL:** `App-prefs:root=PASSWORDS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch (open menu)
+### 141. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE
+**URL:** `prefs:root=SAFARI`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch (highlight menu item)
+### 142. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#AIR_TOUCH_TITLE
+**URL:** `App-prefs:root=SAFARI`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ AssistiveTouch (jump to slider)
+### 143. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#EnableAssistiveTouchSpecifier
+**URL:** `prefs:root=SAFARI&path=WEB_EXTENSIONS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Customize Top Level Menu (highlight menu item)
+### 144. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#AssistiveTouchCustomize
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilesafari/WEB_EXTENSIONS`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Customize Top Level Menu ⇾ Icons (highlight buttons)
+### 145. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/AssistiveTouchCustomize#ASTStepperCell
+**URL:** `prefs:root=MAIL`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Customize Top Level Menu ⇾ Reset (highlight menu item)
+### 146. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/AssistiveTouchCustomize#Reset
+**URL:** `prefs:root=MAIL&path=ACCOUNTS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Custom Actions (jump to section)
+### 147. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#ActionsGroupSpecifier
+**URL:** `prefs:root=MAIL&path=ACCOUNTS#ADD_ACCOUNT`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Single-Tap (highlight menu item)
+### 148. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#TapSpecifier
+**URL:** `prefs:root=MAIL&path=ACCOUNTS#FETCH_NEW_DATA`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Double-Tap (highlight menu item)
+### 149. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#DoubleTapSpecifier
+**URL:** `prefs:root=MESSAGES`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Double-Tap ⇾ Double-Tap Timeout (highlight menu item)
+### 150. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/DoubleTapSpecifier#ASTDoubleTapTimeoutSpecifier
+**URL:** `App-prefs:root=MESSAGES`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Long Press (highlight menu item)
+### 151. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#LongPressSpecifier
+**URL:** `prefs:root=Phone`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Long Press ⇾ Long Press Duration (highlight menu item)
+### 152. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/LongPressSpecifier#ASTLongPressDurationSpecifier
+**URL:** `App-prefs:root=Phone`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Custom Gestures (jump to section)
+### 153. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#CustomGestureHeading
+**URL:** `prefs:root=CONTACTS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Create New Gesture (highlight menu item)
+### 154. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#CreateCustomGesture
+**URL:** `App-prefs:root=CONTACTS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Idle Opacity (highlight menu item)
+### 155. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#IdleOpacity
+**URL:** `prefs:root=CALENDAR`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Devices (jump to section)
+### 156. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#MouseDevicesHeaderTitle
+**URL:** `App-prefs:root=CALENDAR`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Devices (highlight menu item)
+### 157. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#AssistiveTouchMouseDevices
+**URL:** `prefs:root=NOTES`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Devices ⇾ Bluetooth Devices (highlight menu item)
+### 158. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/AssistiveTouchMouseDevices#BluetoothDevicesScanning
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Mouse Keys (highlight menu item)
+### 159. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#AssistiveTouchMouseKeys
+**URL:** `prefs:root=NOTES&path=Default%20Account`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style (highlight menu item)
+### 160. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Default%20Account`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Size (jump to slider)
+### 161. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization#MOUSE_POINTER_SIZE_TITLE
+**URL:** `prefs:root=NOTES&path=Password`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Visual (jump to section)
+### 162. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization#MOUSE_POINTER_VISUAL_APPEARANCE
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Password`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Color (highlight menu item)
+### 163. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization#MOUSE_POINTER_COLOR
+**URL:** `prefs:root=NOTES&path=Sort%20Notes%20By`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Color (open menu)
+### 164. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization/MOUSE_POINTER_COLOR#CustomizeMouseButtons
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Sort%20Notes%20By`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Auto-Hide (highlight menu item)
+### 165. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization#MOUSE_POINTER_TIMEOUT
+**URL:** `prefs:root=NOTES&path=New%20Notes%20Start%20With`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Pointer Style ⇾ Auto-Hide ⇾ Auto-Hide (jump to toggle)
+### 166. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE/ASTMousePointerCustomization/AMOUSE_POINTER_TIMEOUT#Auto-Hide
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/New%20Notes%20Start%20With`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Show Onscreen Keyboard (jump to toggle)
+### 167. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#AlwaysShowSoftwareKeyboard
+**URL:** `prefs:root=NOTES&path=Sort%20Checked%20Items`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Always Show Menu (jump to toggle)
+### 168. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#AlwaysShowMenu
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Sort%20Checked%20Items`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Dwell Control (jump to toggle)
+### 169. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#DwellEnabledSpecifier
+**URL:** `prefs:root=NOTES&path=Lines%20%26%20Grids`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Movement Tolerance (highlight menu item)
+### 170. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/AIR_TOUCH_TITLE#DwellToleranceSpecifier
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.mobilenotes/Lines%20%26%20Grids`
+**Scheme:** `settings-navigation://`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] (highlight menu item)
+### 171. `Notes` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#ForceTouch
+**URL:** `prefs:root=NOTES#Save%20to%20Photos`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] (open menu)
+### 172. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#FORCE_TOUCH
+**URL:** `prefs:root=Photos`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ 3D & Haptic Touch ⇾ 3D Touch (jump to toggle)
+### 173. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#ForceTouchAccessibilityMasterSwitch
+**URL:** `App-prefs:root=Photos`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ 3D & Haptic Touch ⇾ 3D Touch Sensitivity (jump to section)
+### 174. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#FourceTouchSensitivityGroupIdentifier
+**URL:** `prefs:root=Photos#TransferGroup`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] ⇾ Touch Duration (jump to section)
+### 175. `Music` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#timingGroup
+**URL:** `prefs:root=MUSIC`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] ⇾ Fast (highlight menu item)
+### 176. `Music` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#HapticTouchFastIdentifier
+**URL:** `App-prefs:root=MUSIC`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] ⇾ Slow (highlight menu item)
+### 177. `Music` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#HapticTouchSlowIdentifier
+**URL:** `prefs:root=MUSIC&path=com.apple.Music%3AEQ`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Haptic Touch [or 3D & Haptic Touch] ⇾ Touch Duration Test [or 3D Touch Sensitivity and Touch Duration Test (jump to section)
+### 178. `Music` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/ForceTouch#FourceTouchSensitivityTestGroupIdentifier
+**URL:** `prefs:root=MUSIC#com.apple.Music%3ASoundCheck`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations (highlight menu item)
+### 179. `Music` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#TOUCH_ACCOMMODATIONS
+**URL:** `prefs:root=MUSIC#com.apple.Music%3APrivateListening`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Touch Accommodations (jump to toggle)
+### 180. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#TOUCH_ACCOMMODATIONS_SWITCHER
+**URL:** `prefs:root=PODCASTS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Hold Duration (jump to section)
+### 181. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#HoldDurationGroup
+**URL:** `App-prefs:root=PODCASTS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Hold Duration (jump to toggle)
+### 182. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#HoldDuration
+**URL:** `prefs:root=MAPS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Ignore Repeat (jump to section)
+### 183. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#IgnoreRepeatGroup
+**URL:** `App-prefs:root=MAPS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Ignore Repeat (jump to toggle)
+### 184. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#IgnoreRepeat
+**URL:** `prefs:root=HEALTH`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Tap Assistance (jump to section)
+### 185. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#Tap%20Assistance
+**URL:** `App-prefs:root=HEALTH`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Off (highlight menu item)
+### 186. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#OFF
+**URL:** `prefs:root=HOME`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Use Initial Touch Location (highlight menu item)
+### 187. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#ACTIVATE_ON_TOUCH
+**URL:** `App-prefs:root=HOME`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Touch Accommodations ⇾ Use Final Touch Location (highlight menu item)
+### 188. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/TOUCH_ACCOMMODATIONS#ACTIVATE_ON_RELEASE
+**URL:** `prefs:root=NEWS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Tap to Wake (jump to toggle)
+### 189. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#TAP_TO_WAKE_TITLE
+**URL:** `App-prefs:root=NEWS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Shake to Undo (jump to toggle)
+### 190. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#SHAKE_TO_UNDO
+**URL:** `prefs:root=TV`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Vibration (jump to toggle)
+### 191. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#VIBRATION
+**URL:** `App-prefs:root=TV`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Call Audio Routing (highlight menu item)
+### 192. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE#CALL_AUDIO_ROUTING
+**URL:** `prefs:root=WEATHER`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Call Audio Routing ⇾ Automatic (highlight menu item)
+### 193. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/CALL_AUDIO_ROUTING#CALL_AUDIO_ROUTING_AUTOMATIC
+**URL:** `App-prefs:root=WEATHER`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Call Audio Routing ⇾ Bluetooth Headset (highlight menu item)
+### 194. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/CALL_AUDIO_ROUTING#CALL_AUDIO_ROUTING_HEADSET
+**URL:** `prefs:root=FREEFORM`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ Call Audio Routing ⇾ Speaker (highlight menu item)
+### 195. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/CALL_AUDIO_ROUTING#CALL_AUDIO_ROUTING_SPEAKER
+**URL:** `App-prefs:root=FREEFORM`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Touch ⇾ AssistiveTouch ⇾ Call Audio Routing ⇾ Auto-Answer Calls (highlight menu item)
+### 196. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=TOUCH_REACHABILITY_TITLE/CALL_AUDIO_ROUTING#callAudioRoutingAutoAnswer
+**URL:** `prefs:root=JOURNAL`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Face ID & Attention
+### 197. `Settings` — `App-prefs:`
 
-Face ID & Attention (open menu)
+**URL:** `App-prefs:root=JOURNAL`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=FACE_ID
+### 198. `Developer` — `prefs:`
 
-Face ID & Attention ⇾ Require Attention for Face ID (jump to toggle)
+**URL:** `prefs:root=DEVELOPER_SETTINGS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=FACE_ID#PearlUnlockAttention
+### 199. `Developer` — `App-prefs:`
 
-Face ID & Attention ⇾ Attention Aware Features (jump to toggle)
+**URL:** `App-prefs:root=DEVELOPER_SETTINGS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=FACE_ID#AttentionAware
+### 200. `Developer` — `prefs:`
 
-Face ID & Attention ⇾ Haptics (jump to section)
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=MULTI_PATH_AGG`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=FACE_ID#PearlSuccessHapticGroup
+### 201. `Developer` — `prefs:`
 
-Face ID & Attention ⇾ Haptic on Successful Authentication (jump to toggle)
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=NLC`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=FACE_ID#PearlSuccessHaptic
+### 202. `Developer` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Switch Control
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=DTInstrumentsSettings`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control (open menu)
+### 203. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=RoutineSettings`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Switch Control (jump to toggle)
+### 204. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#EnablingCell
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=VideoSubscriberAccountSettings`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Switches (highlight menu item)
+### 205. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#SwitchesIdentifier
+**URL:** `prefs:root=DEVELOPER_SETTINGS&path=ClassKitSettings`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Switches ⇾ Add New Switch (highlight menu item)
+### 206. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/SwitchesIdentifier#AddSwitchIdentifier
+**URL:** `prefs:root=DEVELOPER_SETTINGS#CORESPOTLIGHT_TESTING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Switches ⇾ Bluetooth Devices (highlight menu item)
+### 207. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/SwitchesIdentifier#BluetoothDevicesIdentifier
+**URL:** `prefs:root=DEVELOPER_SETTINGS#SIRI_ACTIONS_TESTING`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Recipes (highlight menu item)
+### 208. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#RecipesIdentifier
+**URL:** `prefs:root=DEVELOPER_SETTINGS#MIDI_CI_API_BETA`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Scanning Style (highlight menu item)
+### 209. `Developer` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#ScanningStyleIdentifier
+**URL:** `prefs:root=DEVELOPER_SETTINGS#HANGTRACER_EXTERNAL_CONFIGURE`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Scanning Style ⇾ Auto Scanning (highlight menu item)
+### 210. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanningStyleIdentifier#AUTO_SCANNING_LABEL
+**URL:** `prefs:root=ACCOUNTS_AND_PASSWORDS`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Scanning Style ⇾ Manual Scanning (highlight menu item)
+### 211. `Settings` — `App-prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanningStyleIdentifier#MANUAL_SCANNING_LABEL
+**URL:** `App-prefs:root=ACCOUNTS_AND_PASSWORDS`
+**Scheme:** `App-prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Scanning Style ⇾ Single Switch Step Scanning (highlight menu item)
+### 212. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanningStyleIdentifier#DWELL_SCANNING_LABEL
+**URL:** `prefs:root=General&path=Restrictions`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Timing (jump to section)
+### 213. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#TimingIdentifier
+**URL:** `prefs:root=WIFI"`
+**Scheme:** `prefs:`
+**Status:** Preserved reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Auto Scanning Time (highlight menu item)
+### 214. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#ScanningSpeedIdentifier
+**URL:** `prefs:root=BATTERY_USAGE#BATTERY_SAVER_MODE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Auto Scanning Time ⇾ Auto Scanning Time (jump to section)
+### 215. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanningSpeedIdentifier#NumericalPreferencePickerGroupIdentifier
+**URL:** `prefs:root=BATTERY_USAGE#BATTERY_HEALTH_ID`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Pause on First Item (highlight menu item)
+### 216. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#DelayAfterInputIdentifier
+**URL:** `prefs:root=General&path=Keyboard/KEYBOARDS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Pause on First Item ⇾ Pause on First Item (jump to toggle)
+### 217. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/DelayAfterInputIdentifier#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=General&path=SOFTWARE_UPDATE_LINK/SUAutomaticUpdateButton`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Move Repeat (highlight menu item)
+### 218. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#ActionRepeatIdentifier
+**URL:** `prefs:root=General&path=STORAGE_MGMT#MANAGE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Move Repeat ⇾ Move Repeat (jump to toggle)
+### 219. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ActionRepeatIdentifier#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=General&path=PiP_SPEC`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Long Press (highlight menu item)
+### 220. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#LongPressIdentifier
+**URL:** `prefs:root=General&path=POINTERS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Long Press ⇾ Long Press (jump to toggle)
+### 221. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/LongPressIdentifier#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=General&path=NFC_LINK`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Tap Behavior (highlight menu item)
+### 222. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#TapBehaviorIdentifier
+**URL:** `prefs:root=General&path=About/CERT_TRUST_SETTINGS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Tap Behavior ⇾ Default (highlight menu item)
+### 223. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/TapBehaviorIdentifier#TapBehaviorDefault
+**URL:** `prefs:root=General&path=About#SerialNumber`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Tap Behavior ⇾ Auto Tap (highlight menu item)
+### 224. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/TapBehaviorIdentifier#TapBehaviorAuto
+**URL:** `prefs:root=General&path=About#ProductModel`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Tap Behavior ⇾ Always Tap (highlight menu item)
+### 225. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/TapBehaviorIdentifier#AlwaysTap
+**URL:** `prefs:root=General&path=About#ProductModelName`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Focused Item After Tap (highlight menu item)
+### 226. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#ScanLocationIdentifier
+**URL:** `prefs:root=General&path=About/SW_VERSION_SPECIFIER`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Focused Item After Tap ⇾ First Item (highlight menu item)
+### 227. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanLocationIdentifier#ScanAfterTapFirst
+**URL:** `prefs:root=General&path=LEGAL_AND_REGULATORY#Warranty`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Focused Item After Tap ⇾ Current Item (highlight menu item)
+### 228. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/ScanLocationIdentifier#ScanAfterTapCurrent
+**URL:** `prefs:root=General&path=Reset`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Keyboard (jump to section)
+### 229. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#SwitchKeyboardIdentifier
+**URL:** `prefs:root=General&path=Reset#settingsErase`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Scan Same Key After Tap (jump to toggle)
+### 230. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#RestartScanAtCurrentIdentifier
+**URL:** `prefs:root=General&path=Reset#fullErase`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Always Tap Keyboard Keys (jump to toggle)
+### 231. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#AlwaysTapKeyboardIdentifier
+**URL:** `prefs:root=General&path=Reset#RESET_NETWORK_LABEL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Extended Predictions (jump to toggle)
+### 232. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#UseExtendedKeyboardPredictionsIdentifier
+**URL:** `prefs:root=General&path=Reset#cellularErase`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Switch Stabilization (jump to section)
+### 233. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#SwitchStabilityIdentifier
+**URL:** `prefs:root=General&path=Reset#SUBSCRIBER_SERVICES_ID`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Hold Duration (highlight menu item)
+### 234. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#HoldDurationIdentifier
+**URL:** `prefs:root=General&path=Reset#RESET_KEYBOARD_DICTIONARY_LABEL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Hold Duration ⇾ Hold Duration (jump to toggle)
+### 235. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/HoldDurationIdentifier#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=General&path=Reset#RESET_ICONS_LABEL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Ignore Repeat (highlight menu item)
+### 236. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#IgnoreRepeatIdentifier
+**URL:** `prefs:root=General&path=Reset#RESET_PRIVACY_LABEL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Ignore Repeat ⇾ Ignore Repeat (jump to toggle)
+### 237. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/IgnoreRepeatIdentifier#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=General#SHUTDOWN_LABEL`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Point Scanning (jump to section)
+### 238. `General` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#AxisSelectionGroupIdentifier
+**URL:** `prefs:root=General&path=INTERNATIONAL#NEW_PREFERRED_LANGUAGE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor (highlight menu item)
+### 239. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#AxisSweepIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor ⇾ Selection Mode (jump to section)
+### 240. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/AxisSweepIdentifier#SelectionStyleGroup
+**URL:** `prefs:root=APPLE_ACCOUNT&path=TRANSPARENCY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor ⇾ Single (highlight menu item)
+### 241. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/AxisSweepIdentifier#SelectionStyleSingle
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/TRANSPARENCY`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor ⇾ Refined (highlight menu item)
+### 242. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/AxisSweepIdentifier#SelectionStyleRefined
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor ⇾ Precise (highlight menu item)
+### 243. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/AxisSweepIdentifier#SelectionStylePrecise
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/STORAGE_AND_BACKUP`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Gliding Cursor ⇾ Gliding Cursor Speed (jump to section)
+### 244. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/AxisSweepIdentifier#AxisSweepSpeed
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Ubiquity`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Head Tracking (highlight menu item)
+### 245. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#CameraPointPickerSwitch
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Ubiquity`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Head Tracking ⇾ Head Tracking (jump to toggle)
+### 246. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/CameraPointPickerSwitch#CameraPointPickerSwitcher
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.MediaStream`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Audio (jump to section)
+### 247. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#AudioGroupIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.MediaStream`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Sound Effects (jump to toggle)
+### 248. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#SoundIdentifier
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Mail`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Speech (highlight menu item)
+### 249. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#SpeechIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Mail`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Speech ⇾ Speech (jump to toggle)
+### 250. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/SpeechIdentifier#VoicesIdentifier
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Contacts`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Speech ⇾ Speaking Rate (jump to slider)
+### 251. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/SpeechIdentifier#SpeechRateIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Contacts`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Menu Items (highlight menu item)
+### 252. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#CustomizeMenuIdentifier
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Calendars`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Group Items (jump to toggle)
+### 253. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#ItemGroupingIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Calendars`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Visual (jump to section)
+### 254. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#VisualGroupIdentifier
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Reminders`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Large Cursor (jump to toggle)
+### 255. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#CursorVisibilityIdentifier
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Reminders`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Saved Gestures (highlight menu item)
+### 256. `Apple Account / iCloud` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle#CustomGesturesIdentifier
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Bookmarks`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Switch Control ⇾ Saved Gestures ⇾ Create New Gestures (highlight menu item)
+### 257. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=ScannerSwitchTitle/CustomGesturesIdentifier#CreateCustomGesture
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Bookmarks`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Voice Control
+### 258. `Apple Account / iCloud` — `prefs:`
 
-Voice Control (open menu)
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Notes`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle
+### 259. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Voice Control (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Notes`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#SETUP_COMMAND_AND_CONTROL
+### 260. `Apple Account / iCloud` — `prefs:`
 
-Voice Control ⇾ Language (highlight menu item)
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.News`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#COMMAND_AND_CONTROL_LANGUAGE
+### 261. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Language (open menu)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.News`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle/COMMAND_AND_CONTROL_LANGUAGE#English%20(United%20States)
+### 262. `Apple Account / iCloud` — `prefs:`
 
-Voice Control ⇾ Customize Commands (highlight menu item)
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/BACKUP`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#CUSTOMIZE_COMMANDS
+### 263. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Vocabulary (highlight menu item)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/BACKUP`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#VOCABULARY
+### 264. `Apple Account / iCloud` — `prefs:`
 
-Voice Control ⇾ Command Feedback (jump to section)
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.Health`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#UPON_COMMAND_RECOGNITION_TITLE
+### 265. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Show Confirmation (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.Health`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#SHOW_TEXT_RESPONSE_TITLE
+### 266. `Apple Account / iCloud` — `prefs:`
 
-Voice Control ⇾ Play Sound (jump to toggle)
+**URL:** `prefs:root=APPLE_ACCOUNT&path=ICLOUD_SERVICE/com.apple.Dataclass.KeychainSync`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#PLAY_SOUND_RESPONSE_TITLE
+### 267. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Show Hints (jump to toggle)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/ICLOUD_SERVICE/com.apple.Dataclass.KeychainSync`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#USER_HINTS_SHOW_HINTS_TITLE
+### 268. `Settings` — `settings-navigation://`
 
-Voice Control ⇾ Continuous Overlay (jump to section)
+**URL:** `settings-navigation://com.apple.Settings.AppleAccount/Family`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#ALWAYS_SHOW_OVERLAY_GROUP_TITLE
+### 269. `Settings` — `prefs:`
 
-Voice Control ⇾ Overlay (highlight menu item)
+**URL:** `prefs:root=NOTIFICATIONS_ID&path=SCHEDULED_DELIVERY_ID`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#ALWAYS_SHOW_OVERLAY
+### 270. `Settings` — `prefs:`
 
-Voice Control ⇾ Overlay ⇾ None (highlight menu item)
+**URL:** `prefs:root=DO_NOT_DISTURB&path=status`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle/ALWAYS_SHOW_OVERLAY#OVERLAY_NONE
+### 271. `Display & Brightness` — `prefs:`
 
-Voice Control ⇾ Overlay ⇾ Item Numbers (highlight menu item)
+**URL:** `prefs:root=DISPLAY#DEVICE_APPEARANCE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle/ALWAYS_SHOW_OVERLAY#OVERLAY_NUMBERS
+### 272. `Display & Brightness` — `prefs:`
 
-Voice Control ⇾ Overlay ⇾ Item Names (highlight menu item)
+**URL:** `prefs:root=DISPLAY#WHITE_BALANCE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle/ALWAYS_SHOW_OVERLAY#OVERLAY_NAMES
+### 273. `Display & Brightness` — `prefs:`
 
-Voice Control ⇾ Overlay ⇾ Numbered Grid (highlight menu item)
+**URL:** `prefs:root=DISPLAY&path=BLUE_LIGHT_REDUCTION#SCHEDULED`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle/ALWAYS_SHOW_OVERLAY#OVERLAY_GRID
+### 274. `Display & Brightness` — `prefs:`
 
-Voice Control ⇾ Attention Aware (jump to toggle)
+**URL:** `prefs:root=DISPLAY&path=APPEARANCE#TWO_HANDED_WINDOW_ZOOM`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=CommandAndControlTitle#ATTENTION_AWARE_ACTION
+### 275. `Display & Brightness` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Side Button (or Home Button)
+**URL:** `prefs:root=DISPLAY&path=MAGNIFY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] (open menu)
+### 276. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE
+**URL:** `prefs:root=DISPLAY&path=ALWAYS_ON`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Click Speed (jump to section)
+### 277. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HOME_SPEED_HEADER
+**URL:** `prefs:root=DISPLAY&path=ALWAYS_ON#ALWAYS_ON`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Default (highlight menu item)
+### 278. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HOME_CLICK_SPEED_DEFAULT
+**URL:** `prefs:root=DISPLAY&path=COMPATIBLE_APPEARANCE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Slow (highlight menu item)
+### 279. `Display & Brightness` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HOME_CLICK_SPEED_SLOW
+**URL:** `prefs:root=DISPLAY&path=COMPATIBLE_APPEARANCE#COMPATIBLE_APPEARANCE_CHOICES`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Slowest (highlight menu item)
+### 280. `Measure` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HOME_CLICK_SPEED_SLOWEST
+**URL:** `prefs:root=MEASURE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Press and Hold to Speak (jump to section)
+### 281. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HomeButtonAssistantTitle
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.measure`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Siri (highlight menu item)
+### 282. `Measure` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HomeButtonAssistantSiri
+**URL:** `prefs:root=MEASURE#MEASURE_UNITS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Classic Voice Control (highlight menu item)
+### 283. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HomeButtonAssistantVoiceControl
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.measure#MEASURE_UNITS#MEASURE_UNITS`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Side Button [or Home Button] ⇾ Off (highlight menu item)
+### 284. `Measure` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HOME_CLICK_TITLE#HomeButtonAssistantOff
+**URL:** `prefs:root=MEASURE#Imperial`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Apple TV Remote
+### 285. `Settings` — `settings-navigation://`
 
-Apple TV Remote (open menu)
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.measure#Imperial#Imperial`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=APPLE_TV_REMOTE
+### 286. `Measure` — `prefs:`
 
-Apple TV Remote ⇾ Directional Buttons (jump to toggle)
+**URL:** `prefs:root=MEASURE#Metric`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=APPLE_TV_REMOTE#AppleTVSimpleGestures
+### 287. `Settings` — `settings-navigation://`
 
-Settings ⇾ Accessibility ⇾ Keyboards
+**URL:** `settings-navigation://com.apple.Settings.Apps/com.apple.measure#Metric#Metric`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards (open menu)
+### 288. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS
+**URL:** `prefs:root=ControlCenter`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access (highlight menu item)
+### 289. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#FULL_KEYBOARD_ACCESS
+**URL:** `prefs:root=ControlCenter#ALLOWED_WITHIN_APPS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access ⇾ Full Keyboard Access (jump to toggle)
+### 290. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/FULL_KEYBOARD_ACCESS#FKAEnabledSwitch
+**URL:** `prefs:root=ControlCenter&path=CUSTOMIZE_CONTROLS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access ⇾ Appearance (jump to section)
+### 291. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/FULL_KEYBOARD_ACCESS#APPEARANCE
+**URL:** `prefs:root=IBOOKS#READING`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access ⇾ Auto-Hide (highlight menu item)
+### 292. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/FULL_KEYBOARD_ACCESS#FKAFocusRingTimeout
+**URL:** `prefs:root=IBOOKS#BKFullJustification`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access ⇾ High Contrast (jump to toggle)
+### 293. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/FULL_KEYBOARD_ACCESS#FKAFocusRingHighVisibilityEnabled
+**URL:** `prefs:root=IBOOKS#BKAutoHyphenation`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Full Keyboard Access ⇾ Color (highlight menu item)
+### 294. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/FULL_KEYBOARD_ACCESS#FKAFocusRingColor
+**URL:** `prefs:root=IBOOKS#BKLeftTapTurnToNext`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Key Repeat (highlight menu item)
+### 295. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#KEY_REPEAT
+**URL:** `prefs:root=IBOOKS#READING_GOALS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Key Repeat ⇾ Key Repeat (jump to toggle)
+### 296. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/KEY_REPEAT#KeyRepeatEnabled
+**URL:** `prefs:root=IBOOKS#BKReadingGoalsShouldClearDataKey`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Key Repeat ⇾ Key Repeat Interval (jump to section)
+### 297. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/KEY_REPEAT#KeyRepeatInterval
+**URL:** `prefs:root=IBOOKS#SEARCHING`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Key Repeat ⇾ Delay Until Repeat (jump to section)
+### 298. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/KEY_REPEAT#KeyRepeatDelay
+**URL:** `prefs:root=IBOOKS#BKIncludeBookStoreResultsInSearch`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Sticky Keys (highlight menu item)
+### 299. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#STICKY_KEYS
+**URL:** `prefs:root=IBOOKS#AUDIOBOOKS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Sticky Keys ⇾ Sticky Keys (jump to toggle)
+### 300. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/STICKY_KEYS#StickyKeysEnabled
+**URL:** `prefs:root=IBOOKS&path=BKAudioBookSkipForward`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Sticky Keys ⇾ Toggle with Shift Key (jump to toggle)
+### 301. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/STICKY_KEYS#StickyKeysShiftToggle
+**URL:** `prefs:root=IBOOKS&path=BKAudioBookSkipBackward`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Sticky Keys ⇾ Sound (jump to toggle)
+### 302. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/STICKY_KEYS#StickyKeysSound
+**URL:** `prefs:root=IBOOKS#BKRemoteSkipInsteadOfNextTrackDefaultKey`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Slow Keys (highlight menu item)
+### 303. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#SLOW_KEYS
+**URL:** `prefs:root=IBOOKS#Next/Previous`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Slow Keys ⇾ Slow Keys (jump to toggle)
+### 304. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS/SLOW_KEYS#NumericalPreferenceSwitcherIdentifier
+**URL:** `prefs:root=IBOOKS#Skip%20Forward/Back`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Software Keyboards (jump to section)
+### 305. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#SOFTWARE_KEYBOARDS
+**URL:** `prefs:root=IBOOKS#PRIVACY`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Keyboards ⇾ Show Lowercase Keys (jump to toggle)
+### 306. `Books` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=KEYBOARDS#LOWERCASE_KEYBOARD
+**URL:** `prefs:root=IBOOKS#BAResetAnalyticsUserID`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Hearing Accessibility Settings
+### 307. `Books` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Hearing Devices
+**URL:** `prefs:root=IBOOKS&path=Acknowledgements`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Hearing Devices (open menu)
+### 308. `Camera` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HEARING_AID_TITLE
+**URL:** `prefs:root=CAMERA&path=CameraFormatsSettingsList#CAMUserPreferenceEnableLinearDNGControl`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Hearing Devices ⇾ MFI Hearding Devices (jump to section)
+### 309. `Camera` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HEARING_AID_TITLE#AvailableAidsHeading
+**URL:** `prefs:root=CAMERA&path=Record%20Video#HDR%20Video`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Hearing Devices ⇾ Hearing Aid Compatibility (jump to section)
+### 310. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HEARING_AID_TITLE#HEARING_AID_BLUETOOTH
+**URL:** `prefs:root=COMPASS#USE_TRUE_NORTH`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Hearing Devices ⇾ Hearing Aid Compatibility (jump to toggle)
+### 311. `Privacy & Security` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=HEARING_AID_TITLE#HEARING_AID_COMPLIANCE
+**URL:** `prefs:root=Privacy&path=REMINDERS`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Sound Recognition
+### 312. `Settings` — `settings-navigation://`
 
-Sound Recognition (open menu)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/REMINDERS`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SOUND_RECOGNITION_TITLE
+### 313. `Settings` — `settings-navigation://`
 
-Sound Recognition ⇾ Sounds (highlight menu item)
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/SPEECH_RECOGNITION`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=SOUND_RECOGNITION_TITLE#Sounds
+### 314. `Settings` — `settings-navigation://`
 
-Settings ⇾ Accessibility ⇾ RTT/TTY
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/WILLOW`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-RTT/TTY (open menu)
+### 315. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=RTT
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/MEDIALIBRARY`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-RTT/TTY ⇾ Software RTT (jump to toggle)
+### 316. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=RTT#SW_TTY
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/PROBLEM_REPORTING`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-RTT/TTY ⇾ Hardware TTY (jump to toggle)
+### 317. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=RTT#HW_TTY
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/ADVERTISING`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-RTT/TTY ⇾ [Cell Line Name] ⇾ Software RTT (jump to toggle)
+### 318. `Settings` — `settings-navigation://`
 
-> prefs:root=ACCESSIBILITY&path=RTT/YourCellLineName#SW_TTY
+**URL:** `settings-navigation://com.apple.Settings.PrivacyAndSecurity/FILEACCESS`
+**Scheme:** `settings-navigation://`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private destination; verify on the target iOS release.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-RTT/TTY ⇾ [Cell Line Name] ⇾ Hardware TTY (jump to toggle)
+### 319. `Settings` — `prefs:`
 
-> prefs:root=ACCESSIBILITY&path=RTT/YourCellLineName#HW_TTY
+**URL:** `prefs:root=Sounds&path=Personalized%20Spatial%20Audio`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Settings ⇾ Accessibility ⇾ Audio/Visual
+### 320. `Settings` — `prefs:`
 
-Audio/Visual (open menu)
+**URL:** `prefs:root=Pencil`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE
+### 321. `Settings` — `prefs:`
 
-Audio/Visual ⇾ Audio (jump to section)
+**URL:** `prefs:root=Pencil#PrefersPencilDraws`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#AXPAAudioGroupSpecID
+### 322. `Settings` — `prefs:`
 
-Audio/Visual ⇾ Headphone Accommodations (highlight menu item)
+**URL:** `prefs:root=Pencil#PencilTextInput`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#AXPAEnableSpecID
+### 323. `Settings` — `prefs:`
 
-Audio/Visual ⇾ Headphone Accommodations ⇾ Headphone Accommodations (jump to toggle)
+**URL:** `prefs:root=TRANSLATE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE/AXPAEnableSpecID#AXPAEnableSpecID
+### 324. `Settings` — `prefs:`
 
-Audio/Visual ⇾ Headphone Accommodations ⇾ Custom Audio Setup (highlight menu item)
+**URL:** `prefs:root=TRANSLATE#OnDeviceOnly`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE/AXPAEnableSpecID#AXPAPersonalAudioSetupSpecID
+### 325. `App Store` — `prefs:`
 
-Audio/Visual ⇾ Mono Audio (jump to toggle)
+**URL:** `prefs:root=STORE#Automatic%20Downloads`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#AXPAMonoSpecID
+### 326. `App Store` — `prefs:`
 
-Audio/Visual ⇾ Phone Noise Cancellation (jump to toggle)
+**URL:** `prefs:root=STORE#App%20Updates`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#AXPANoiseSpecID
+### 327. `App Store` — `prefs:`
 
-Audio/Visual ⇾ Balance (jump to section)
+**URL:** `prefs:root=STORE&path=App%20Downloads`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#AXPABalanceSpecID
+### 328. `App Store` — `prefs:`
 
-Audio/Visual ⇾ Visual (jump to section)
+**URL:** `prefs:root=STORE&path=Video%20Autoplay`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#VISUAL_HEADING
+### 329. `App Store` — `prefs:`
 
-Audio/Visual ⇾ LED Flash for Alerts (jump to toggle)
+**URL:** `prefs:root=STORE#In-App%20Ratings%20&%20Reviews`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-> prefs:root=ACCESSIBILITY&path=AUDIO_VISUAL_TITLE#LED_FLASH
+### 330. `Settings` — `prefs:`
 
-Settings ⇾ Accessibility ⇾ Subtitles & Captioning
+**URL:** `prefs:root=ROOT#AIRPLANE_MODE`
+**Scheme:** `prefs:`
+**Status:** Current cross-reference; requires verification
+**Risk:** Undocumented/private Settings URL; behavior can change between releases.
+**Testing note:** Test from Shortcuts, Safari, a native app, and a physical device separately; record iOS version, device, source context, and observed destination.
 
-Subtitles & Captioning (open menu)
+⸻
 
-> prefs:root=ACCESSIBILITY&path=SUBTITLES_CAPTIONING
+## Public API guidance
 
-Subtitles & Captioning ⇾ Style (highlight menu item)
+For an App Store application, prefer Apple's documented APIs whenever the destination
+is the application's own Settings page or its notification settings.
 
-> prefs:root=ACCESSIBILITY&path=SUBTITLES_CAPTIONING#currentTheme
+### Application Settings
 
-General Accessibility Settings
+```swift
+import UIKit
 
-Settings ⇾ Accessibility ⇾ Guided Access
+if let url = URL(string: UIApplication.openSettingsURLString) {
+    await UIApplication.shared.open(url)
+}
+```
 
-Guided Access (open menu)
+Apple documents `UIApplication.openSettingsURLString` as the URL string used to
+deep-link to an app's custom Settings page. This is different from private
+`prefs:` routes because it is an Apple-provided API.
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE
+### Application Notification Settings
 
-Guided Access ⇾ Guided Access (jump to toggle)
+```swift
+import UIKit
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE#EnableGuidedAccess
+if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
+    await UIApplication.shared.open(url)
+}
+```
 
-Guided Access ⇾ Passcode Settings (highlight menu item)
+Apple documents `UIApplication.openNotificationSettingsURLString` for deep-linking
+to an application's notification settings.
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE#GuidedAccessSecurityLinkList
+### Default Applications Settings
 
-Guided Access ⇾ Passcode Settings ⇾ Set Guided Access Passcode (highlight menu item)
+Apple's current UIKit documentation lists `openDefaultApplicationsSettingsURLString`
+as deprecated. Treat it as a compatibility reference rather than a recommendation
+for new code.
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE/GuidedAccessSecurityLinkList#GAXPinButton
+## Current iOS 26.2 cross-reference
 
-Guided Access ⇾ Time Limits (highlight menu item)
+A maintained community catalog for iOS 26.2 currently lists 414 lines of
+`prefs:` destinations. This README intentionally does not convert those community
+entries into claims of Apple support. Examples include Battery Health, AutoFill,
+Software Update automatic updates, Apple Account/iCloud sub-destinations,
+Display & Brightness, Wallet, Developer settings, Books, Camera, Privacy & Security,
+Translate, Siri, and App Store destinations.
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE#GuidedAccessTimeRestrictionsLinkList
+## iOS 27 verification policy
 
-Guided Access ⇾ Time Limits ⇾ Alarm (jump to section)
+The repository may contain an iOS 27 testing section because this project is updated
+during an evolving OS cycle. Do not label an undocumented URL as "working on iOS 27"
+unless the result has actually been reproduced on a specified iOS 27 build/device.
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE/GuidedAccessTimeRestrictionsLinkList#GUIDED_ACCESS_TIME_RESTRICTIONS_HEADING
+When reporting a result, include:
 
-Guided Access ⇾ Time Limits ⇾ Sound (highlight menu item)
+- iOS version/build
+- device model
+- URL
+- scheme
+- where it was opened from
+- expected destination
+- actual destination
+- whether Settings opened
+- whether the URL merely opened the Settings root
+- whether behavior differed between simulator and physical hardware
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE/GuidedAccessTimeRestrictionsLinkList#GUIDED_ACCESS_TIME_RESTRICTIONS_SOUND_TITLE
+## Reproducible test record
 
-Guided Access ⇾ Time Limits ⇾ Speak (jump to toggle)
+```text
+iOS version/build:
+Device:
+URL:
+Scheme:
+Opened from:
+Expected:
+Actual:
+Settings opened:
+Direct destination:
+Notes:
+```
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE/GuidedAccessTimeRestrictionsLinkList#GUIDED_ACCESS_TIME_RESTRICTIONS_SPEAK_TITLE
+## Pull request checklist
 
-Guided Access ⇾ Accessibility Shortcut (jump to toggle)
+Before adding a URL:
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE#GuidedAccessEnableAXFeatures
+- Confirm the URL is syntactically valid.
+- Record the exact iOS version/build.
+- Record the device model.
+- Test the exact URL rather than a visually similar variant.
+- Record whether the test was from Shortcuts, Safari, or an application.
+- Record whether the destination opened directly or only opened Settings.
+- Preserve percent encoding.
+- Do not describe a private route as an Apple-supported public API.
+- Keep older routes when they have historical value.
+- Prefer a documented Apple API when one exists.
+- Avoid claiming universal compatibility from one successful test.
+- Add a source or reproducible observation when possible.
 
-Guided Access ⇾ Display Auto-Lock (highlight menu item)
+## License
 
-> prefs:root=ACCESSIBILITY&path=GUIDED_ACCESS_TITLE#GuidedAccessAutoLockTime
+MIT
 
-Settings ⇾ Accessibility ⇾ Siri
+## Developer
 
-Siri (open menu)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE
-
-Siri ⇾ Type to Siri (jump to toggle)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#SIRI_SETTINGS_TYPE_TO_SIRI
-
-Siri ⇾ Voice Feedback (jump to section)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#VOICE_FEEDBACK_GROUP_ID
-
-Siri ⇾ Always Speak Responses (highlight menu item)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#VOICE_FEEDBACK_ALWAYS_ID
-
-Siri ⇾ With Silent Mode off (highlight menu item)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#VOICE_FEEDBACK_WITH_SWITCH_ID
-
-Siri ⇾ Only with "Hey Siri" (highlight menu item)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#VOICE_FEEDBACK_HANDSFREE_ID
-
-Siri ⇾ Always Listen for "Hey Siri" (jump to toggle)
-
-> prefs:root=ACCESSIBILITY&path=SIRI_SETTINGS_TITLE#SIRI_SETTINGS_VOICE_ACTIVATION_ALWAYS_ALLOW
-
-Settings ⇾ Accessibility ⇾ Accessibility Shortcut
-
-Accessibility Shortcut (open menu)
-
-> prefs:root=ACCESSIBILITY&path=TRIPLE_CLICK_TITLE
+[@1mehdifaraji](https://github.com/1mehdifaraji)
